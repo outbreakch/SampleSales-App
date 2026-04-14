@@ -1,0 +1,271 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  INVITED
+  DISABLED
+}
+
+enum RoleKey {
+  STAFF
+  ADMIN
+  FULL_ADMIN
+  CATALOG_ADMIN
+  FINANCE
+  OPERATIONS
+}
+
+enum PaymentStatus {
+  PENDING
+  CONFIRMED
+  VOIDED
+}
+
+enum TemplateType {
+  RECEIPT
+  PASSWORD_RESET
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  CHECKOUT
+  RESEND_RECEIPT
+}
+
+model User {
+  id                    String      @id @default(cuid())
+  email                 String      @unique
+  firstName             String
+  lastName              String
+  passwordHash          String
+  status                UserStatus  @default(ACTIVE)
+  defaultCountryId      String?
+  defaultRegionCode     String?
+  preferredLanguage     String?
+  preferencesCompletedAt DateTime?
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  defaultCountry        Country?    @relation("UserDefaultCountry", fields: [defaultCountryId], references: [id], onDelete: SetNull)
+  roles                 UserRole[]
+  orders                Order[]
+  audits                AuditLog[]
+  passwordResetTokens   PasswordResetToken[]
+}
+
+model Role {
+  id        String     @id @default(cuid())
+  key       RoleKey    @unique
+  name      String
+  createdAt DateTime   @default(now())
+  users     UserRole[]
+}
+
+model UserRole {
+  userId String
+  roleId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+}
+
+model Country {
+  id                String               @id @default(cuid())
+  code              String               @unique
+  name              String
+  companyName       String?
+  currencyCode      String
+  defaultLocale     String
+  defaultLanguage   String
+  priceIncludesTax  Boolean              @default(false)
+  receiptFooter     String?
+  legalLabel        String?
+  isActive          Boolean              @default(true)
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  taxRules          TaxRule[]
+  catalogItems      CatalogItemCountry[]
+  storeEvents       StoreEvent[]
+  templates         EmailTemplate[]
+  orders            Order[]
+  localizedLabels   LocalizedLabel[]
+  defaultUsers      User[]                 @relation("UserDefaultCountry")
+}
+
+model StoreEvent {
+  id          String   @id @default(cuid())
+  countryId   String
+  name        String
+  code        String   @unique
+  city        String?
+  startsAt    DateTime?
+  endsAt      DateTime?
+  isActive    Boolean  @default(true)
+  country     Country  @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  orders      Order[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TaxRule {
+  id             String   @id @default(cuid())
+  countryId      String
+  name           String
+  code           String
+  category       String
+  regionCode     String?
+  ratePercent    Decimal  @db.Decimal(5, 2)
+  effectiveFrom  DateTime
+  effectiveTo    DateTime?
+  priority       Int      @default(0)
+  isCompound     Boolean  @default(false)
+  isActive       Boolean  @default(true)
+  country        Country  @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([countryId, category, regionCode, effectiveFrom])
+}
+
+model CatalogItem {
+  id              String               @id @default(cuid())
+  sku             String               @unique
+  name            String
+  description     String?
+  taxCategory     String
+  basePrice       Decimal              @db.Decimal(10, 2)
+  isArchived      Boolean              @default(false)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  countries       CatalogItemCountry[]
+  lineItems       OrderLineItem[]
+}
+
+model CatalogItemCountry {
+  catalogItemId String
+  countryId     String
+  isAvailable   Boolean @default(true)
+  overridePrice Decimal? @db.Decimal(10, 2)
+  catalogItem   CatalogItem @relation(fields: [catalogItemId], references: [id], onDelete: Cascade)
+  country       Country @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@id([catalogItemId, countryId])
+}
+
+model Order {
+  id                 String         @id @default(cuid())
+  orderNumber        String         @unique
+  countryId          String
+  storeEventId       String?
+  cashierUserId      String
+  customerName       String?
+  customerEmail      String?
+  customerPhone      String?
+  subtotalAmount     Decimal        @db.Decimal(10, 2)
+  taxAmount          Decimal        @db.Decimal(10, 2)
+  totalAmount        Decimal        @db.Decimal(10, 2)
+  currencyCode       String
+  paymentStatus      PaymentStatus  @default(PENDING)
+  paymentMethodNote  String?
+  paymentConfirmedAt DateTime?
+  receiptSentAt      DateTime?
+  receiptResentAt    DateTime?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  country            Country        @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  storeEvent         StoreEvent?    @relation(fields: [storeEventId], references: [id], onDelete: SetNull)
+  cashier            User           @relation(fields: [cashierUserId], references: [id], onDelete: Restrict)
+  lineItems          OrderLineItem[]
+}
+
+model OrderLineItem {
+  id               String      @id @default(cuid())
+  orderId          String
+  catalogItemId    String?
+  itemNameSnapshot String
+  skuSnapshot      String
+  unitPrice        Decimal     @db.Decimal(10, 2)
+  quantity         Int
+  taxRateSnapshot  Decimal     @db.Decimal(5, 2)
+  taxAmount        Decimal     @db.Decimal(10, 2)
+  lineTotal        Decimal     @db.Decimal(10, 2)
+  createdAt        DateTime    @default(now())
+  order            Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  catalogItem      CatalogItem? @relation(fields: [catalogItemId], references: [id], onDelete: SetNull)
+}
+
+model EmailTemplate {
+  id           String       @id @default(cuid())
+  countryId    String
+  type         TemplateType
+  languageCode String
+  name         String
+  subject      String
+  htmlBody     String
+  textBody     String
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  country      Country      @relation(fields: [countryId], references: [id], onDelete: Restrict)
+
+  @@unique([countryId, type, languageCode])
+}
+
+model LocalizedLabel {
+  id           String   @id @default(cuid())
+  countryId    String
+  languageCode String
+  namespace    String
+  key          String
+  value        String
+  country      Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@unique([countryId, languageCode, namespace, key])
+}
+
+model AppSetting {
+  id          String   @id @default(cuid())
+  group       String
+  key         String
+  value       Json
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([group, key])
+}
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  actorUserId String?
+  entityType  String
+  entityId    String
+  action      AuditAction
+  details     Json?
+  createdAt   DateTime    @default(now())
+  actor       User?       @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId, createdAt])
+}
+
+model PasswordResetToken {
+  id         String   @id @default(cuid())
+  userId     String
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+}
