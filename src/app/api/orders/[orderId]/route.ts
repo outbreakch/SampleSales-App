@@ -3,9 +3,12 @@ import { z } from "zod";
 import { readSession } from "@/lib/auth/session";
 import { ORDER_SUPPORT_ROLES, hasAnyRole } from "@/lib/auth/rbac";
 import { prisma } from "@/lib/db/prisma";
+import { emailAddressSchema } from "@/lib/validation/primitives";
+import { validationErrorResponse } from "@/lib/validation/http";
+import { resourceIdParamSchema } from "@/lib/validation/params";
 
 const updateOrderSchema = z.object({
-  customerEmail: z.string().trim().email()
+  customerEmail: emailAddressSchema
 });
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ orderId: string }> }) {
@@ -18,10 +21,16 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ or
   const payload = updateOrderSchema.safeParse(await request.json());
 
   if (!payload.success) {
-    return NextResponse.json({ error: payload.error.flatten() }, { status: 400 });
+    return validationErrorResponse(payload.error);
   }
 
-  const { orderId } = await params;
+  const parsedParams = resourceIdParamSchema.safeParse((await params).orderId);
+
+  if (!parsedParams.success) {
+    return validationErrorResponse(parsedParams.error, "Invalid order id.");
+  }
+
+  const orderId = parsedParams.data;
   const order = await prisma.order.findUnique({
     where: {
       id: orderId

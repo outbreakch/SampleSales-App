@@ -1,0 +1,18 @@
+.git
+.github
+.next
+.npm-cache
+node_modules
+
+.env
+.env.local
+.env.*.local
+
+.DS_Store
+npm-debug.log*
+
+coverage
+dist
+build
+
+untitled folder

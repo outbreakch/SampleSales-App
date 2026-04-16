@@ -1,3 +1,5 @@
+import { logger } from "@/lib/observability/logger";
+
 type EmailPayload = {
   to: string;
   subject: string;
@@ -9,7 +11,11 @@ export async function sendEmail(payload: EmailPayload) {
   const provider = process.env.MAIL_PROVIDER ?? "console";
 
   if (provider === "console") {
-    console.info("mail.send", payload);
+    logger.info("mail.send", {
+      provider,
+      to: payload.to,
+      subject: payload.subject
+    });
     return { queued: true, provider };
   }
 
@@ -71,7 +77,7 @@ export async function sendEmail(payload: EmailPayload) {
         | null;
 
       if (!response.ok) {
-        console.error("mailjet.send.error", {
+        logger.error("mailjet.send.error", {
           status: response.status,
           body
         });
@@ -94,6 +100,10 @@ export async function sendEmail(payload: EmailPayload) {
         messageUuid: message?.To?.[0]?.MessageUUID ?? null
       };
     } catch (error) {
+      logger.error("mailjet.send.exception", {
+        error
+      });
+
       return {
         queued: false,
         provider,
@@ -101,6 +111,10 @@ export async function sendEmail(payload: EmailPayload) {
       };
     }
   }
+
+  logger.warn("mail.send.unsupported_provider", {
+    provider
+  });
 
   return { queued: false, provider, note: "Unsupported mail provider." };
 }

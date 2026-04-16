@@ -1,13 +1,20 @@
 import { z } from "zod";
+import {
+  currencyCodeSchema,
+  localeCodeSchema,
+  longTextSchema,
+  optionalTextSchema,
+  staffLocaleSchema
+} from "@/lib/validation/primitives";
 
 export const countryUpdateSchema = z.object({
-  name: z.string().trim().min(2).max(100),
-  companyName: z.string().trim().min(2).max(160),
-  currencyCode: z.string().trim().min(3).max(3),
-  defaultLocale: z.string().trim().min(2).max(20),
-  defaultLanguage: z.string().trim().min(2).max(10),
+  name: longTextSchema(100).min(2, "Country name is required."),
+  companyName: longTextSchema(160).min(2, "Company name is required."),
+  currencyCode: currencyCodeSchema,
+  defaultLocale: localeCodeSchema,
+  defaultLanguage: staffLocaleSchema,
   priceIncludesTax: z.boolean(),
-  receiptFooter: z.string().trim().max(1000).optional().or(z.literal("")),
-  legalLabel: z.string().trim().max(1000).optional().or(z.literal("")),
+  receiptFooter: optionalTextSchema(1000),
+  legalLabel: optionalTextSchema(1000),
   isActive: z.boolean()
 });

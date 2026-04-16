@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { CATALOG_ROLES, requireAnyRole } from "@/lib/auth/rbac";
 import { prisma } from "@/lib/db/prisma";
 import { catalogItemUpdateSchema } from "@/lib/validation/catalog";
+import { validationErrorResponse } from "@/lib/validation/http";
+import { resourceIdParamSchema } from "@/lib/validation/params";
 
 export async function PATCH(
   request: Request,
@@ -13,10 +15,16 @@ export async function PATCH(
   const payload = catalogItemUpdateSchema.safeParse(await request.json());
 
   if (!payload.success) {
-    return NextResponse.json({ error: payload.error.flatten() }, { status: 400 });
+    return validationErrorResponse(payload.error);
   }
 
-  const { itemId } = await params;
+  const parsedParams = resourceIdParamSchema.safeParse((await params).itemId);
+
+  if (!parsedParams.success) {
+    return validationErrorResponse(parsedParams.error, "Invalid catalog item id.");
+  }
+
+  const itemId = parsedParams.data;
   const existingItem = await prisma.catalogItem.findUnique({
     where: {
       id: itemId

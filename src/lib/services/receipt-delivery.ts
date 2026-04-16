@@ -1,5 +1,6 @@
 import { AuditAction, TemplateType } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
+import { logger } from "@/lib/observability/logger";
 import { buildReceiptTemplateValues, renderTemplate } from "@/lib/receipt-template";
 import { sendReceiptEmail } from "@/lib/services/mail";
 import { getTaxDisplayLabels } from "@/lib/tax-display";
@@ -109,7 +110,7 @@ export async function deliverOrderReceipt({
   const html = renderTemplate(template.htmlBody, templateValues);
   const text = renderTemplate(template.textBody, templateValues);
 
-  console.info("receipt.send.attempt", {
+  logger.info("receipt.send.attempt", {
     orderId: order.id,
     orderNumber: order.orderNumber,
     to: order.customerEmail,
@@ -124,7 +125,7 @@ export async function deliverOrderReceipt({
     text
   });
 
-  console.info("receipt.send.result", {
+  logger.info("receipt.send.result", {
     orderId: order.id,
     orderNumber: order.orderNumber,
     to: order.customerEmail,

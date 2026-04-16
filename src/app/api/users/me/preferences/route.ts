@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { readSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
+import { validationErrorResponse } from "@/lib/validation/http";
 import { userPreferencesSchema } from "@/lib/validation/user-preferences";
 
 export async function GET() {
@@ -41,7 +42,7 @@ export async function PATCH(request: Request) {
   const payload = userPreferencesSchema.safeParse(await request.json());
 
   if (!payload.success) {
-    return NextResponse.json({ error: payload.error.flatten() }, { status: 400 });
+    return validationErrorResponse(payload.error);
   }
 
   const country = await prisma.country.findUnique({

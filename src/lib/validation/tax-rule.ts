@@ -1,10 +1,11 @@
 import { z } from "zod";
+import { countryCodeSchema, taxCategorySchema, titleSchema } from "@/lib/validation/primitives";
 
 export const taxRuleSchema = z.object({
-  name: z.string().trim().min(2).max(120),
-  code: z.string().trim().min(2).max(50),
-  category: z.string().trim().min(2).max(50),
-  countryCode: z.enum(["US", "CA", "AU"]),
+  name: titleSchema,
+  code: z.string().trim().min(2).max(50).regex(/^[A-Z0-9_-]+$/).transform((value) => value.toUpperCase()),
+  category: taxCategorySchema,
+  countryCode: countryCodeSchema,
   regionCode: z.string().trim().max(20).optional().or(z.literal("")),
   ratePercent: z.number().min(0).max(100),
   effectiveFrom: z.string().datetime(),

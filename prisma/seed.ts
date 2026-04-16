@@ -1,13 +1,16 @@
 import bcrypt from "bcryptjs";
 import { PrismaClient, RoleKey, TemplateType } from "@prisma/client";
 import { receiptHtmlToTextTemplate } from "../src/lib/email-template";
+import { logger } from "../src/lib/observability/logger";
 import { receiptTemplateStarter } from "../src/lib/receipt-template";
 
 const prisma = new PrismaClient();
 
 async function main() {
   const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? "ChangeMe123!";
+  const testUserPassword = process.env.SEED_TEST_USER_PASSWORD ?? adminPassword;
   const passwordHash = await bcrypt.hash(adminPassword, 10);
+  const testUserPasswordHash = await bcrypt.hash(testUserPassword, 10);
 
   const [staffRole, fullAdminRole, catalogAdminRole, financeRole, operationsRole] = await Promise.all([
     prisma.role.upsert({
@@ -190,24 +193,88 @@ async function main() {
     });
   }
 
-  const adminUser = await prisma.user.upsert({
-    where: { email: "admin@samplesale.local" },
-    update: {},
-    create: {
+  const seedUsers = [
+    {
       email: "admin@samplesale.local",
       firstName: "Sample",
       lastName: "Admin",
-      passwordHash
+      passwordHash,
+      defaultCountryId: ca.id,
+      preferredLanguage: "en",
+      roles: [staffRole.id, fullAdminRole.id]
+    },
+    {
+      email: "staff@samplesale.local",
+      firstName: "Sample",
+      lastName: "Staff",
+      passwordHash: testUserPasswordHash,
+      defaultCountryId: ca.id,
+      preferredLanguage: "en",
+      roles: [staffRole.id]
+    },
+    {
+      email: "catalog.admin@samplesale.local",
+      firstName: "Catalog",
+      lastName: "Admin",
+      passwordHash: testUserPasswordHash,
+      defaultCountryId: au.id,
+      preferredLanguage: "en",
+      roles: [catalogAdminRole.id]
+    },
+    {
+      email: "finance@samplesale.local",
+      firstName: "Finance",
+      lastName: "Reviewer",
+      passwordHash: testUserPasswordHash,
+      defaultCountryId: us.id,
+      preferredLanguage: "en",
+      roles: [financeRole.id]
+    },
+    {
+      email: "operations@samplesale.local",
+      firstName: "Operations",
+      lastName: "Manager",
+      passwordHash: testUserPasswordHash,
+      defaultCountryId: ca.id,
+      preferredLanguage: "en",
+      roles: [operationsRole.id]
     }
-  });
+  ] as const;
 
-  await prisma.userRole.createMany({
-    data: [
-      { userId: adminUser.id, roleId: staffRole.id },
-      { userId: adminUser.id, roleId: fullAdminRole.id }
-    ],
-    skipDuplicates: true
-  });
+  for (const seedUser of seedUsers) {
+    const user = await prisma.user.upsert({
+      where: { email: seedUser.email },
+      update: {
+        firstName: seedUser.firstName,
+        lastName: seedUser.lastName,
+        passwordHash: seedUser.passwordHash,
+        defaultCountryId: seedUser.defaultCountryId,
+        preferredLanguage: seedUser.preferredLanguage,
+        preferencesCompletedAt: new Date()
+      },
+      create: {
+        email: seedUser.email,
+        firstName: seedUser.firstName,
+        lastName: seedUser.lastName,
+        passwordHash: seedUser.passwordHash,
+        defaultCountryId: seedUser.defaultCountryId,
+        preferredLanguage: seedUser.preferredLanguage,
+        preferencesCompletedAt: new Date()
+      }
+    });
+
+    await prisma.userRole.deleteMany({
+      where: { userId: user.id }
+    });
+
+    await prisma.userRole.createMany({
+      data: seedUser.roles.map((roleId) => ({
+        userId: user.id,
+        roleId
+      })),
+      skipDuplicates: true
+    });
+  }
 
   await prisma.emailTemplate.createMany({
     data: [
@@ -260,7 +327,7 @@ main()
     await prisma.$disconnect();
   })
   .catch(async (error) => {
-    console.error(error);
+    logger.error("seed.failed", { error });
     await prisma.$disconnect();
     process.exit(1);
   });

@@ -4,6 +4,7 @@ import { SETTINGS_ROLES, requireAnyRole } from "@/lib/auth/rbac";
 import { prisma } from "@/lib/db/prisma";
 import { receiptHtmlToTextTemplate } from "@/lib/email-template";
 import { emailTemplateCreateSchema } from "@/lib/validation/email-template";
+import { validationErrorResponse } from "@/lib/validation/http";
 
 export async function GET() {
   await requireAnyRole(SETTINGS_ROLES);
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
   const payload = emailTemplateCreateSchema.safeParse(await request.json());
 
   if (!payload.success) {
-    return NextResponse.json({ error: payload.error.flatten() }, { status: 400 });
+    return validationErrorResponse(payload.error);
   }
 
   const country = await prisma.country.findUnique({

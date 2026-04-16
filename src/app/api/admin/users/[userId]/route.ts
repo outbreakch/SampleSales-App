@@ -3,19 +3,29 @@ import { AuditAction } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { USER_MANAGEMENT_ROLES, requireAnyRole } from "@/lib/auth/rbac";
 import { prisma } from "@/lib/db/prisma";
+import { getRequestLogContext, logger } from "@/lib/observability/logger";
 import { sendPasswordResetNotificationEmail } from "@/lib/services/auth-mail";
+import { validationErrorResponse } from "@/lib/validation/http";
+import { resourceIdParamSchema } from "@/lib/validation/params";
 import { adminUserUpdateSchema } from "@/lib/validation/user-admin";
 
 export async function PATCH(
   request: Request,
   context: { params: Promise<{ userId: string }> }
 ) {
+  const requestLog = getRequestLogContext(request);
   const session = await requireAnyRole(USER_MANAGEMENT_ROLES);
-  const { userId } = await context.params;
+  const parsedParams = resourceIdParamSchema.safeParse((await context.params).userId);
+
+  if (!parsedParams.success) {
+    return validationErrorResponse(parsedParams.error, "Invalid user id.");
+  }
+
+  const userId = parsedParams.data;
   const payload = adminUserUpdateSchema.safeParse(await request.json());
 
   if (!payload.success) {
-    return NextResponse.json({ error: "Invalid user payload." }, { status: 400 });
+    return validationErrorResponse(payload.error, "Invalid user payload.");
   }
 
   const existingUser = await prisma.user.findUnique({
@@ -118,7 +128,8 @@ export async function PATCH(
       appUrl: process.env.APP_URL
     });
 
-    console.info("auth.email.password_reset", {
+    logger.info("auth.email.password_reset", {
+      ...requestLog,
       actorUserId: session.id,
       userId,
       email,
@@ -132,11 +143,18 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   context: { params: Promise<{ userId: string }> }
 ) {
+  const requestLog = getRequestLogContext(request);
   const session = await requireAnyRole(USER_MANAGEMENT_ROLES);
-  const { userId } = await context.params;
+  const parsedParams = resourceIdParamSchema.safeParse((await context.params).userId);
+
+  if (!parsedParams.success) {
+    return validationErrorResponse(parsedParams.error, "Invalid user id.");
+  }
+
+  const userId = parsedParams.data;
 
   if (session.id === userId) {
     return NextResponse.json({ error: "You cannot delete your own account." }, { status: 400 });
@@ -181,6 +199,13 @@ export async function DELETE(
       }
     })
   ]);
+
+  logger.warn("auth.user.deleted", {
+    ...requestLog,
+    actorUserId: session.id,
+    userId,
+    email: existingUser.email
+  });
 
   return NextResponse.json({ ok: true });
 }

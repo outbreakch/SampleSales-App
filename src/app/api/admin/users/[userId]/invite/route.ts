@@ -3,14 +3,24 @@ import { NextResponse } from "next/server";
 import { USER_MANAGEMENT_ROLES, requireAnyRole } from "@/lib/auth/rbac";
 import { generatePasswordResetToken, hashPasswordResetToken } from "@/lib/auth/password-reset";
 import { prisma } from "@/lib/db/prisma";
+import { getRequestLogContext, logger } from "@/lib/observability/logger";
 import { sendInvitationEmail } from "@/lib/services/auth-mail";
+import { validationErrorResponse } from "@/lib/validation/http";
+import { resourceIdParamSchema } from "@/lib/validation/params";
 
 export async function POST(
-  _request: Request,
+  request: Request,
   context: { params: Promise<{ userId: string }> }
 ) {
+  const requestLog = getRequestLogContext(request);
   const session = await requireAnyRole(USER_MANAGEMENT_ROLES);
-  const { userId } = await context.params;
+  const parsedParams = resourceIdParamSchema.safeParse((await context.params).userId);
+
+  if (!parsedParams.success) {
+    return validationErrorResponse(parsedParams.error, "Invalid user id.");
+  }
+
+  const userId = parsedParams.data;
 
   const user = await prisma.user.findUnique({
     where: {
@@ -74,7 +84,8 @@ export async function POST(
     resetUrl
   });
 
-  console.info("auth.email.invitation_resent", {
+  logger.info("auth.email.invitation_resent", {
+    ...requestLog,
     actorUserId: session.id,
     userId,
     email: user.email,

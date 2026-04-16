@@ -163,11 +163,11 @@ export function CheckoutPanel({
           </div>
         </form>
       </div>
-      <div className="rounded-[24px] bg-ink p-6 text-white">
-        <p className="text-xs uppercase tracking-[0.24em] text-white/60">{copy.orderSummary}</p>
+      <div className="checkout-summary-shell rounded-[24px] p-6">
+        <p className="checkout-summary-eyebrow text-xs uppercase tracking-[0.24em]">{copy.orderSummary}</p>
         <div className="mt-4 space-y-3">
           {lines.map((line) => (
-            <div key={line.itemId} className="flex items-center justify-between text-sm text-white/85">
+            <div key={line.itemId} className="checkout-summary-line flex items-center justify-between text-sm">
               <span>
                 {line.name} x {line.quantity}
               </span>
@@ -175,7 +175,7 @@ export function CheckoutPanel({
             </div>
           ))}
         </div>
-        <div className="mt-6 space-y-2 border-t border-white/10 pt-4 text-sm">
+        <div className="checkout-summary-totals mt-6 space-y-2 border-t pt-4 text-sm">
           <div className="flex justify-between">
             <span>{labels.subtotalLabel}</span>
             <span>{formatCurrency(summary.subtotal, country.currencyCode, country.locale)}</span>

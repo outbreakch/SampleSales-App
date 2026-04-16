@@ -3,6 +3,8 @@ import { readSession } from "@/lib/auth/session";
 import { ORDER_SUPPORT_ROLES, hasAnyRole } from "@/lib/auth/rbac";
 import { prisma } from "@/lib/db/prisma";
 import { deliverOrderReceipt } from "@/lib/services/receipt-delivery";
+import { validationErrorResponse } from "@/lib/validation/http";
+import { resourceIdParamSchema } from "@/lib/validation/params";
 
 export async function POST(_: Request, { params }: { params: Promise<{ orderId: string }> }) {
   const session = await readSession();
@@ -11,7 +13,13 @@ export async function POST(_: Request, { params }: { params: Promise<{ orderId: 
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
-  const { orderId } = await params;
+  const parsedParams = resourceIdParamSchema.safeParse((await params).orderId);
+
+  if (!parsedParams.success) {
+    return validationErrorResponse(parsedParams.error, "Invalid order id.");
+  }
+
+  const orderId = parsedParams.data;
   const order = await prisma.order.findUnique({
     where: {
       id: orderId

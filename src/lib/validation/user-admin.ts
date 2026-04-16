@@ -1,12 +1,13 @@
 import { RoleKey, UserStatus } from "@prisma/client";
 import { z } from "zod";
 import { passwordSchema } from "@/lib/validation/auth";
+import { emailAddressSchema, personNameSchema } from "@/lib/validation/primitives";
 
 export const adminUserCreateSchema = z
   .object({
-    firstName: z.string().trim().min(1).max(80),
-    lastName: z.string().trim().min(1).max(80),
-    email: z.string().trim().email(),
+    firstName: personNameSchema,
+    lastName: personNameSchema,
+    email: emailAddressSchema,
     password: passwordSchema.optional().or(z.literal("")),
     status: z.nativeEnum(UserStatus).default(UserStatus.ACTIVE),
     roles: z.array(z.nativeEnum(RoleKey)).min(1)
@@ -31,9 +32,9 @@ export const adminUserCreateSchema = z
 
 export const adminUserUpdateSchema = z
   .object({
-    firstName: z.string().trim().min(1).max(80),
-    lastName: z.string().trim().min(1).max(80),
-    email: z.string().trim().email(),
+    firstName: personNameSchema,
+    lastName: personNameSchema,
+    email: emailAddressSchema,
     password: passwordSchema.optional().or(z.literal("")),
     status: z.nativeEnum(UserStatus),
     roles: z.array(z.nativeEnum(RoleKey)).min(1)

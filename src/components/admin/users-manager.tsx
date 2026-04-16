@@ -43,6 +43,7 @@ const emptyDraft = (): UserDraft => ({
 });
 
 const roleDescriptions: Record<RoleKey, string> = {
+  [RoleKey.ADMIN]: "Legacy admin role retained only for migration compatibility.",
   [RoleKey.STAFF]: "Can sell, complete checkout, and manage their own recent orders.",
   [RoleKey.FULL_ADMIN]: "Full access to users, catalog, orders, templates, and country settings.",
   [RoleKey.CATALOG_ADMIN]: "Admin access limited to catalog management.",

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { CATALOG_ROLES, requireAnyRole } from "@/lib/auth/rbac";
 import { prisma } from "@/lib/db/prisma";
 import { catalogItemSchema } from "@/lib/validation/catalog";
+import { validationErrorResponse } from "@/lib/validation/http";
 
 export async function GET() {
   await requireAnyRole(CATALOG_ROLES);
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
   const payload = catalogItemSchema.safeParse(await request.json());
 
   if (!payload.success) {
-    return NextResponse.json({ error: payload.error.flatten() }, { status: 400 });
+    return validationErrorResponse(payload.error);
   }
 
   const duplicateSku = await prisma.catalogItem.findUnique({

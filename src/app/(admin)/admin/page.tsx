@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageIntro } from "@/components/layout/page-intro";
@@ -34,7 +35,7 @@ export default async function AdminDashboardPage() {
     hasAnyRole(session, USER_MANAGEMENT_ROLES)
       ? { href: "/admin/users", label: "User management", detail: "Create users, assign roles, disable access, and update passwords" }
       : null
-  ].filter(Boolean) as Array<{ href: string; label: string; detail: string }>;
+  ].filter(Boolean) as Array<{ href: Route; label: string; detail: string }>;
 
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);

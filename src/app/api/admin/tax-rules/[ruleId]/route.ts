@@ -2,6 +2,8 @@ import { AuditAction } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { SETTINGS_ROLES, requireAnyRole } from "@/lib/auth/rbac";
 import { prisma } from "@/lib/db/prisma";
+import { validationErrorResponse } from "@/lib/validation/http";
+import { resourceIdParamSchema } from "@/lib/validation/params";
 import { taxRuleSchema } from "@/lib/validation/tax-rule";
 
 async function authorize() {
@@ -18,10 +20,16 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ru
   const payload = taxRuleSchema.safeParse(await request.json());
 
   if (!payload.success) {
-    return NextResponse.json({ error: payload.error.flatten() }, { status: 400 });
+    return validationErrorResponse(payload.error);
   }
 
-  const { ruleId } = await params;
+  const parsedParams = resourceIdParamSchema.safeParse((await params).ruleId);
+
+  if (!parsedParams.success) {
+    return validationErrorResponse(parsedParams.error, "Invalid tax rule id.");
+  }
+
+  const ruleId = parsedParams.data;
   const existingRule = await prisma.taxRule.findUnique({
     where: { id: ruleId },
     include: { country: true }
@@ -95,7 +103,7 @@ export async function POST(request: Request) {
   const payload = taxRuleSchema.safeParse(await request.json());
 
   if (!payload.success) {
-    return NextResponse.json({ error: payload.error.flatten() }, { status: 400 });
+    return validationErrorResponse(payload.error);
   }
 
   const country = await prisma.country.findUnique({

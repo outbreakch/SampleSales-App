@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 import type { SessionUser } from "@/lib/types";
 
 const SESSION_COOKIE = "sample_sale_session";
+const SESSION_TTL_HOURS = 10;
+const SESSION_TTL_SECONDS = SESSION_TTL_HOURS * 60 * 60;
 
 function getSecret() {
   const secret = process.env.SESSION_SECRET;
@@ -24,7 +26,7 @@ export async function createSession(user: SessionUser) {
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("10h")
+    .setExpirationTime(`${SESSION_TTL_HOURS}h`)
     .sign(getSecret());
 
   const store = await cookies();
@@ -32,7 +34,8 @@ export async function createSession(user: SessionUser) {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    path: "/"
+    path: "/",
+    maxAge: SESSION_TTL_SECONDS
   });
 }
 

@@ -61,6 +61,7 @@ Package versions are in [package.json](/Users/anthony.lariccia/Library/CloudStor
 Additional architecture detail:
 - [docs/solution-architecture.md](/Users/anthony.lariccia/Library/CloudStorage/OneDrive-BESTSELLER/Documents/Projects/WebDev/SampleSale-POS/docs/solution-architecture.md)
 - [docs/api-contract.md](/Users/anthony.lariccia/Library/CloudStorage/OneDrive-BESTSELLER/Documents/Projects/WebDev/SampleSale-POS/docs/api-contract.md)
+- [docs/uat-checklist.md](/Users/anthony.lariccia/Library/CloudStorage/OneDrive-BESTSELLER/Documents/Projects/WebDev/SampleSale-POS/docs/uat-checklist.md)
 - [prisma/schema.prisma](/Users/anthony.lariccia/Library/CloudStorage/OneDrive-BESTSELLER/Documents/Projects/WebDev/SampleSale-POS/prisma/schema.prisma)
 
 ## Current Role Model
@@ -204,6 +205,21 @@ npm run db:seed
 npm run dev -- --hostname 0.0.0.0
 ```
 
+### Seeded UAT users
+
+The seed now creates test users for:
+
+- `FULL_ADMIN`
+- `STAFF`
+- `CATALOG_ADMIN`
+- `FINANCE`
+- `OPERATIONS`
+
+Default credentials:
+
+- username: see [docs/uat-checklist.md](/Users/anthony.lariccia/Library/CloudStorage/OneDrive-BESTSELLER/Documents/Projects/WebDev/SampleSale-POS/docs/uat-checklist.md)
+- password: `SEED_TEST_USER_PASSWORD`, or `SEED_ADMIN_PASSWORD`, or `ChangeMe123!`
+
 ### Notes about this workspace
 
 - This machine required a local npm cache path because of ownership issues under `~/.npm`
@@ -310,8 +326,27 @@ docker compose up --build -d
 - The container exposes port `3000`
 - `next.config.ts` uses `output: "standalone"` so the image only needs the built standalone output plus Prisma assets
 - The container expects all runtime configuration to be provided through environment variables
-- The main unresolved deployment decision is still database connectivity from `MONWEBDEV01` to PostgreSQL
-- The current local tunnel pattern should not be assumed on the server
+- `MONWEBDEV01` can reach `MONPOSTGRDEV01:5432` directly, so `DATABASE_URL` should point there rather than using any local tunnel pattern
+- `docker-compose.yml` now includes a `sample-sales-tools` service for one-off Prisma tasks inside Docker
+
+Recommended first-pass server flow:
+
+```bash
+cp .env.example .env
+# edit .env with MONWEBDEV01 production-like values
+
+docker compose --profile tools run --rm sample-sales-tools npx prisma db push
+docker compose --profile tools run --rm sample-sales-tools npm run db:seed
+docker compose up --build -d sample-sales-app
+```
+
+Useful checks:
+
+```bash
+docker compose ps
+docker compose logs -f sample-sales-app
+curl http://localhost:3000/api/health
+```
 
 ### Required runtime environment variables
 

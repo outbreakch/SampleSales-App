@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { SETTINGS_ROLES, requireAnyRole } from "@/lib/auth/rbac";
 import { prisma } from "@/lib/db/prisma";
 import { countryUpdateSchema } from "@/lib/validation/country";
+import { validationErrorResponse } from "@/lib/validation/http";
+import { countryCodeParamSchema } from "@/lib/validation/params";
 
 export async function PATCH(
   request: Request,
@@ -13,10 +15,16 @@ export async function PATCH(
   const payload = countryUpdateSchema.safeParse(await request.json());
 
   if (!payload.success) {
-    return NextResponse.json({ error: payload.error.flatten() }, { status: 400 });
+    return validationErrorResponse(payload.error);
   }
 
-  const { countryCode } = await params;
+  const parsedParams = countryCodeParamSchema.safeParse((await params).countryCode);
+
+  if (!parsedParams.success) {
+    return validationErrorResponse(parsedParams.error, "Invalid country code.");
+  }
+
+  const countryCode = parsedParams.data;
   const existingCountry = await prisma.country.findUnique({
     where: {
       code: countryCode

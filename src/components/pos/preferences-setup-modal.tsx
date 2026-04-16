@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { getStaffCopy, normalizeStaffLocale } from "@/lib/i18n";
+import { getStaffCopy, normalizeStaffLocale, type StaffLocale } from "@/lib/i18n";
 import type { CountryConfig } from "@/lib/types";
 
 function getDefaultPreferences() {
@@ -24,7 +24,7 @@ export function PreferencesSetupModal({
   countries: CountryConfig[];
   onSaved: (preferences: {
     countryCode: CountryConfig["code"];
-    preferredLanguage: string;
+    preferredLanguage: StaffLocale;
   }) => void;
 }) {
   const defaults = getDefaultPreferences();
@@ -96,7 +96,7 @@ export function PreferencesSetupModal({
                 <select
                   className="h-12 w-full rounded-2xl border border-black/10 bg-white px-4 text-sm text-ink outline-none focus:border-ink"
                   value={preferredLanguage}
-                  onChange={(event) => setPreferredLanguage(event.target.value)}
+                  onChange={(event) => setPreferredLanguage(event.target.value as StaffLocale)}
                 >
                   <option value="en">English</option>
                   <option value="fr-CA">French (Canada)</option>

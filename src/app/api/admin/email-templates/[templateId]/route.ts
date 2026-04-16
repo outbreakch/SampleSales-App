@@ -4,6 +4,8 @@ import { SETTINGS_ROLES, requireAnyRole } from "@/lib/auth/rbac";
 import { prisma } from "@/lib/db/prisma";
 import { receiptHtmlToTextTemplate } from "@/lib/email-template";
 import { emailTemplateUpdateSchema } from "@/lib/validation/email-template";
+import { validationErrorResponse } from "@/lib/validation/http";
+import { resourceIdParamSchema } from "@/lib/validation/params";
 
 export async function PATCH(
   request: Request,
@@ -14,10 +16,16 @@ export async function PATCH(
   const payload = emailTemplateUpdateSchema.safeParse(await request.json());
 
   if (!payload.success) {
-    return NextResponse.json({ error: payload.error.flatten() }, { status: 400 });
+    return validationErrorResponse(payload.error);
   }
 
-  const { templateId } = await params;
+  const parsedParams = resourceIdParamSchema.safeParse((await params).templateId);
+
+  if (!parsedParams.success) {
+    return validationErrorResponse(parsedParams.error, "Invalid email template id.");
+  }
+
+  const templateId = parsedParams.data;
   const existingTemplate = await prisma.emailTemplate.findUnique({
     where: {
       id: templateId

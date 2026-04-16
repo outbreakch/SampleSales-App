@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { emailAddressSchema, personNameSchema, resourceIdSchema } from "@/lib/validation/primitives";
 
 export const passwordSchema = z
   .string()
@@ -10,15 +11,15 @@ export const passwordSchema = z
   .regex(/[^A-Za-z0-9]/, "Password must include a symbol.");
 
 export const loginSchema = z.object({
-  email: z.string().trim().email(),
+  email: emailAddressSchema,
   password: z.string().min(8).max(128)
 });
 
 export const registerSchema = z
   .object({
-    firstName: z.string().trim().min(1).max(80),
-    lastName: z.string().trim().min(1).max(80),
-    email: z.string().trim().email(),
+    firstName: personNameSchema,
+    lastName: personNameSchema,
+    email: emailAddressSchema,
     password: passwordSchema,
     confirmPassword: passwordSchema
   })
@@ -28,12 +29,12 @@ export const registerSchema = z
   });
 
 export const passwordResetRequestSchema = z.object({
-  email: z.string().trim().email()
+  email: emailAddressSchema
 });
 
 export const passwordResetSchema = z
   .object({
-    token: z.string().trim().min(32).max(256),
+    token: resourceIdSchema.min(32).max(256),
     password: passwordSchema,
     confirmPassword: passwordSchema
   })

@@ -31,7 +31,7 @@ export function CatalogGrid({
             <span className="text-xl font-semibold leading-none text-ink lg:text-[1.35rem]">
               {formatCurrency(item.price, country.currencyCode, country.locale)}
             </span>
-            <Button className="h-10 px-4 text-sm" onClick={() => onAddItem(item)}>
+            <Button className="catalog-add-button h-10 px-4 text-sm" onClick={() => onAddItem(item)}>
               <Plus className="mr-1.5 size-4" />
               {copy.navSell === "Vente" ? "Ajouter" : "Add"}
             </Button>

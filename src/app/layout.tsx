@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { headers } from "next/headers";
 import "@/app/globals.css";
 
 const adelle = localFont({
@@ -71,11 +72,14 @@ export const metadata: Metadata = {
   description: "Responsive sample sale POS for staff and admin teams."
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   return (
     <html lang="en" className={`${adelle.variable} ${adelleSans.variable}`} suppressHydrationWarning>
       <head>
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `
               (function () {

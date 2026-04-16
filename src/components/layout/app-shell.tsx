@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import { readSession } from "@/lib/auth/session";
 import { HeaderControls } from "@/components/layout/header-controls";
@@ -8,10 +9,12 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   const session = await readSession();
   const copy = getStaffCopy(session?.preferredLanguage);
   const isAdmin = hasAnyRole(session, ADMIN_SECTION_ROLES);
-  const nav = [
+  const baseNav: Array<{ href: Route; label: string }> = [
     { href: "/catalog", label: copy.navSell },
     { href: "/orders", label: copy.navOrders }
-  ].concat(isAdmin ? [{ href: "/admin", label: copy.navAdmin }] : []);
+  ];
+  const adminNav: Array<{ href: Route; label: string }> = isAdmin ? [{ href: "/admin", label: copy.navAdmin }] : [];
+  const nav: Array<{ href: Route; label: string }> = [...baseNav, ...adminNav];
 
   return (
     <div className="min-h-screen bg-mist">

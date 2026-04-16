@@ -102,8 +102,11 @@ export function CatalogManager({
           <div className="px-6 py-8 text-sm text-stone">{copy.noCatalogItemsFound}</div>
         ) : (
           items.map((item) => (
-            <div key={item.id} className="border-t border-black/5 first:border-t-0 xl:border-t-0">
-              <div className="space-y-4 px-5 py-5 xl:hidden">
+            <div
+              key={item.id}
+              className="border-t border-black/5 first:border-t-0 md:mx-4 md:my-3 md:rounded-[28px] md:border md:border-black/5 md:bg-white/70 md:first:mt-4 md:last:mb-4"
+            >
+              <div className="space-y-4 px-5 py-5 md:px-6 md:py-6 xl:hidden">
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <p className="text-xs uppercase tracking-[0.18em] text-stone">{item.sku}</p>
@@ -118,7 +121,7 @@ export function CatalogManager({
                     <Pencil className="size-4" />
                   </button>
                 </div>
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid gap-3 md:gap-4 sm:grid-cols-2">
                   <div className="rounded-2xl border border-black/5 bg-mist/70 px-4 py-3">
                     <p className="text-xs uppercase tracking-[0.18em] text-stone">{copy.basePriceLabel}</p>
                     <p className="mt-2 font-semibold text-ink">{formatCurrency(item.basePrice, "USD")}</p>
@@ -142,7 +145,7 @@ export function CatalogManager({
                 </div>
               </div>
 
-              <div className="hidden grid-cols-[120px_1.2fr_140px_180px_170px_120px_80px] gap-4 px-6 py-5 text-sm xl:grid">
+              <div className="hidden grid-cols-[120px_1.2fr_140px_180px_170px_120px_80px] gap-4 px-6 py-6 text-sm xl:grid">
                 <span className="font-medium text-ink">{item.sku}</span>
                 <div>
                   <p className="text-ink">{item.name}</p>

@@ -1,0 +1,52 @@
+services:
+  sample-sales-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sample-sales-app:local
+    container_name: sample-sales-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      DATABASE_URL: ${DATABASE_URL}
+      APP_URL: ${APP_URL}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
+      SESSION_SECRET: ${SESSION_SECRET}
+      MAIL_PROVIDER: ${MAIL_PROVIDER}
+      MAILJET_API_KEY: ${MAILJET_API_KEY}
+      MAILJET_API_SECRET: ${MAILJET_API_SECRET}
+      MAIL_FROM: ${MAIL_FROM}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      APP_LOG_SERVICE: ${APP_LOG_SERVICE:-sample-sales-app}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then((response) => { if (!response.ok) process.exit(1); }).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  sample-sales-tools:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    image: sample-sales-app:tools
+    profiles: ["tools"]
+    working_dir: /app
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL}
+      APP_URL: ${APP_URL}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
+      SESSION_SECRET: ${SESSION_SECRET}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-ChangeMe123!}
+      MAIL_PROVIDER: ${MAIL_PROVIDER}
+      MAILJET_API_KEY: ${MAILJET_API_KEY}
+      MAILJET_API_SECRET: ${MAILJET_API_SECRET}
+      MAIL_FROM: ${MAIL_FROM}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      APP_LOG_SERVICE: ${APP_LOG_SERVICE:-sample-sales-app}
