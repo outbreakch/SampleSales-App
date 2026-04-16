@@ -107,7 +107,9 @@ export async function POST(request: Request) {
     const mailResult = await sendPasswordResetNotificationEmail({
       to: resetToken.user.email,
       firstName: resetToken.user.firstName,
-      appUrl: process.env.APP_URL
+      appUrl: process.env.APP_URL,
+      actorUserId: resetToken.userId,
+      userId: resetToken.userId
     });
 
     logger.info("auth.email.password_reset_completed", {

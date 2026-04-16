@@ -109,7 +109,8 @@ export async function POST(request: Request) {
     const mailResult = await sendRegistrationConfirmationEmail({
       to: user.email,
       firstName: user.firstName,
-      appUrl: process.env.APP_URL
+      appUrl: process.env.APP_URL,
+      userId: user.id
     });
 
     logger.info("auth.email.registration", {

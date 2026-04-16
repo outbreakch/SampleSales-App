@@ -26,6 +26,13 @@ export default async function AdminDashboardPage() {
     hasAnyRole(session, ORDER_VIEW_ROLES)
       ? { href: "/admin/orders", label: copy.orderHistory, detail: copy.orderHistoryDetail }
       : null,
+    hasAnyRole(session, ORDER_VIEW_ROLES)
+      ? {
+          href: "/admin/email-deliveries",
+          label: "Email delivery history",
+          detail: "Inspect queued, failed, and provider-accepted receipt and authentication emails."
+        }
+      : null,
     hasAnyRole(session, SETTINGS_ROLES)
       ? { href: "/admin/email-templates", label: copy.emailTemplatesTitle, detail: copy.emailTemplatesDetail }
       : null,

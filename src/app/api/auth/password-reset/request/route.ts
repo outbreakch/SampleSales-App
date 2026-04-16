@@ -83,7 +83,8 @@ export async function POST(request: Request) {
       to: user.email,
       firstName: user.firstName,
       appUrl,
-      resetUrl
+      resetUrl,
+      userId: user.id
     });
 
     logger.info("auth.email.password_reset_request", {

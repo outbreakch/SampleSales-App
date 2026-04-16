@@ -1,7 +1,8 @@
-import { AuditAction, TemplateType } from "@prisma/client";
+import { AuditAction, EmailDeliveryType, TemplateType } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { logger } from "@/lib/observability/logger";
 import { buildReceiptTemplateValues, renderTemplate } from "@/lib/receipt-template";
+import { recordEmailDelivery } from "@/lib/services/email-delivery-log";
 import { sendReceiptEmail } from "@/lib/services/mail";
 import { getTaxDisplayLabels } from "@/lib/tax-display";
 
@@ -135,6 +136,17 @@ export async function deliverOrderReceipt({
     note: "note" in result ? result.note : null,
     messageId: "messageId" in result ? result.messageId : null,
     messageUuid: "messageUuid" in result ? result.messageUuid : null
+  });
+
+  await recordEmailDelivery({
+    type: EmailDeliveryType.RECEIPT,
+    recipientEmail: order.customerEmail,
+    subject: template.subject,
+    result,
+    actorUserId: actorUserId ?? order.cashierUserId,
+    userId: order.cashierUserId,
+    orderId: order.id,
+    templateId: template.id
   });
 
   if (!result.queued) {

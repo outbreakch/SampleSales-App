@@ -81,7 +81,9 @@ export async function POST(
     to: user.email,
     firstName: user.firstName,
     appUrl,
-    resetUrl
+    resetUrl,
+    actorUserId: session.id,
+    userId
   });
 
   logger.info("auth.email.invitation_resent", {

@@ -106,7 +106,9 @@ export async function POST(request: Request) {
         to: user.email,
         firstName: user.firstName,
         appUrl,
-        resetUrl
+        resetUrl,
+        actorUserId: session.id,
+        userId: user.id
       });
 
       logger.info("auth.email.invitation", {
@@ -122,7 +124,9 @@ export async function POST(request: Request) {
       const mailResult = await sendAdminProvisionedAccountEmail({
         to: user.email,
         firstName: user.firstName,
-        appUrl: process.env.APP_URL
+        appUrl: process.env.APP_URL,
+        actorUserId: session.id,
+        userId: user.id
       });
 
       logger.info("auth.email.admin_provisioned", {

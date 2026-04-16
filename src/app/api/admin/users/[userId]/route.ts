@@ -125,7 +125,9 @@ export async function PATCH(
     const mailResult = await sendPasswordResetNotificationEmail({
       to: email,
       firstName: payload.data.firstName.trim(),
-      appUrl: process.env.APP_URL
+      appUrl: process.env.APP_URL,
+      actorUserId: session.id,
+      userId
     });
 
     logger.info("auth.email.password_reset", {

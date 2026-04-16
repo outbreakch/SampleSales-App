@@ -1,9 +1,16 @@
+import { EmailDeliveryType } from "@prisma/client";
+import { recordEmailDelivery } from "@/lib/services/email-delivery-log";
 import { sendEmail } from "@/lib/services/mail";
 
 type AuthEmailContext = {
   to: string;
   firstName: string;
   appUrl?: string | null;
+};
+
+type AuthEmailDeliveryMetadata = {
+  actorUserId?: string | null;
+  userId?: string | null;
 };
 
 function renderAuthShell(title: string, intro: string, details: string[], closing: string) {
@@ -46,8 +53,10 @@ function stripHtml(html: string) {
 export async function sendRegistrationConfirmationEmail({
   to,
   firstName,
-  appUrl
-}: AuthEmailContext) {
+  appUrl,
+  actorUserId,
+  userId
+}: AuthEmailContext & AuthEmailDeliveryMetadata) {
   const signInUrl = `${(appUrl ?? process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "")}/login`;
   const subject = "Your BESTSELLER Sample Sales account is ready";
   const html = renderAuthShell(
@@ -61,19 +70,32 @@ export async function sendRegistrationConfirmationEmail({
     "If you did not expect this account to be created, contact your administrator."
   );
 
-  return sendEmail({
+  const result = await sendEmail({
     to,
     subject,
     html,
     text: stripHtml(html)
   });
+
+  await recordEmailDelivery({
+    type: EmailDeliveryType.ACCOUNT_CREATED,
+    recipientEmail: to,
+    subject,
+    result,
+    actorUserId,
+    userId
+  });
+
+  return result;
 }
 
 export async function sendAdminProvisionedAccountEmail({
   to,
   firstName,
-  appUrl
-}: AuthEmailContext) {
+  appUrl,
+  actorUserId,
+  userId
+}: AuthEmailContext & AuthEmailDeliveryMetadata) {
   const signInUrl = `${(appUrl ?? process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "")}/login`;
   const subject = "Your BESTSELLER Sample Sales account has been provisioned";
   const html = renderAuthShell(
@@ -87,20 +109,33 @@ export async function sendAdminProvisionedAccountEmail({
     "If this account should not have been created, contact your administrator immediately."
   );
 
-  return sendEmail({
+  const result = await sendEmail({
     to,
     subject,
     html,
     text: stripHtml(html)
   });
+
+  await recordEmailDelivery({
+    type: EmailDeliveryType.ACCOUNT_PROVISIONED,
+    recipientEmail: to,
+    subject,
+    result,
+    actorUserId,
+    userId
+  });
+
+  return result;
 }
 
 export async function sendInvitationEmail({
   to,
   firstName,
   appUrl,
-  resetUrl
-}: AuthEmailContext & { resetUrl: string }) {
+  resetUrl,
+  actorUserId,
+  userId
+}: AuthEmailContext & AuthEmailDeliveryMetadata & { resetUrl: string }) {
   const signInUrl = `${(appUrl ?? process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "")}/login`;
   const subject = "Set up your BESTSELLER Sample Sales account";
   const html = renderAuthShell(
@@ -114,19 +149,32 @@ export async function sendInvitationEmail({
     "This setup link expires in 60 minutes and can only be used once."
   );
 
-  return sendEmail({
+  const result = await sendEmail({
     to,
     subject,
     html,
     text: stripHtml(html)
   });
+
+  await recordEmailDelivery({
+    type: EmailDeliveryType.ACCOUNT_INVITE,
+    recipientEmail: to,
+    subject,
+    result,
+    actorUserId,
+    userId
+  });
+
+  return result;
 }
 
 export async function sendPasswordResetNotificationEmail({
   to,
   firstName,
-  appUrl
-}: AuthEmailContext) {
+  appUrl,
+  actorUserId,
+  userId
+}: AuthEmailContext & AuthEmailDeliveryMetadata) {
   const signInUrl = `${(appUrl ?? process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "")}/login`;
   const subject = "Your BESTSELLER Sample Sales password was reset";
   const html = renderAuthShell(
@@ -140,20 +188,33 @@ export async function sendPasswordResetNotificationEmail({
     "This message is a security notification only and does not include the password itself."
   );
 
-  return sendEmail({
+  const result = await sendEmail({
     to,
     subject,
     html,
     text: stripHtml(html)
   });
+
+  await recordEmailDelivery({
+    type: EmailDeliveryType.PASSWORD_RESET_NOTIFICATION,
+    recipientEmail: to,
+    subject,
+    result,
+    actorUserId,
+    userId
+  });
+
+  return result;
 }
 
 export async function sendPasswordResetLinkEmail({
   to,
   firstName,
   appUrl,
-  resetUrl
-}: AuthEmailContext & { resetUrl: string }) {
+  resetUrl,
+  actorUserId,
+  userId
+}: AuthEmailContext & AuthEmailDeliveryMetadata & { resetUrl: string }) {
   const signInUrl = `${(appUrl ?? process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "")}/login`;
   const subject = "Reset your BESTSELLER Sample Sales password";
   const html = renderAuthShell(
@@ -167,10 +228,21 @@ export async function sendPasswordResetLinkEmail({
     `If you did not request a password reset, you can ignore this message and continue using your existing password from <a href="${signInUrl}" style="color:#151515;">${signInUrl}</a>.`
   );
 
-  return sendEmail({
+  const result = await sendEmail({
     to,
     subject,
     html,
     text: stripHtml(html)
   });
+
+  await recordEmailDelivery({
+    type: EmailDeliveryType.PASSWORD_RESET_LINK,
+    recipientEmail: to,
+    subject,
+    result,
+    actorUserId,
+    userId
+  });
+
+  return result;
 }

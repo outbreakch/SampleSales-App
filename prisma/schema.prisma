@@ -34,6 +34,15 @@ enum TemplateType {
   PASSWORD_RESET
 }
 
+enum EmailDeliveryType {
+  RECEIPT
+  ACCOUNT_CREATED
+  ACCOUNT_PROVISIONED
+  ACCOUNT_INVITE
+  PASSWORD_RESET_LINK
+  PASSWORD_RESET_NOTIFICATION
+}
+
 enum AuditAction {
   CREATE
   UPDATE
@@ -61,6 +70,8 @@ model User {
   orders                Order[]
   audits                AuditLog[]
   passwordResetTokens   PasswordResetToken[]
+  initiatedEmails       EmailDelivery[] @relation("EmailDeliveryActor")
+  targetEmails          EmailDelivery[] @relation("EmailDeliveryUser")
 }
 
 model Role {
@@ -187,6 +198,7 @@ model Order {
   storeEvent         StoreEvent?    @relation(fields: [storeEventId], references: [id], onDelete: SetNull)
   cashier            User           @relation(fields: [cashierUserId], references: [id], onDelete: Restrict)
   lineItems          OrderLineItem[]
+  emailDeliveries    EmailDelivery[]
 }
 
 model OrderLineItem {
@@ -218,8 +230,34 @@ model EmailTemplate {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   country      Country      @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  deliveries   EmailDelivery[]
 
   @@unique([countryId, type, languageCode])
+}
+
+model EmailDelivery {
+  id             String            @id @default(cuid())
+  type           EmailDeliveryType
+  actorUserId    String?
+  userId         String?
+  orderId        String?
+  templateId     String?
+  recipientEmail String
+  subject        String
+  provider       String
+  queued         Boolean
+  note           String?
+  messageId      String?
+  messageUuid    String?
+  createdAt      DateTime          @default(now())
+  actor          User?             @relation("EmailDeliveryActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  user           User?             @relation("EmailDeliveryUser", fields: [userId], references: [id], onDelete: SetNull)
+  order          Order?            @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  template       EmailTemplate?    @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([type, createdAt])
+  @@index([recipientEmail, createdAt])
 }
 
 model LocalizedLabel {
