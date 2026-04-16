@@ -14,7 +14,7 @@ export const emailAddressSchema = z
   .string()
   .trim()
   .max(254, "Email must be 254 characters or less.")
-  .email("Enter a valid email address.")
+  .regex(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, "Enter a valid email address.")
   .transform((value) => value.toLowerCase());
 
 export const personNameSchema = z

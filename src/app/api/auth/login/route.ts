@@ -16,6 +16,10 @@ export async function POST(request: Request) {
     const payload = loginSchema.safeParse(await request.json());
 
     if (!payload.success) {
+      logger.warn("auth.login.invalid_payload", {
+        ...requestLog,
+        details: payload.error.flatten()
+      });
       return validationErrorResponse(payload.error, "Invalid credentials payload.");
     }
 
