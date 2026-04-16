@@ -16,6 +16,20 @@ function getSecret() {
   return new TextEncoder().encode(secret);
 }
 
+function shouldUseSecureCookies() {
+  const configuredAppUrl = process.env.APP_URL;
+
+  if (configuredAppUrl) {
+    try {
+      return new URL(configuredAppUrl).protocol === "https:";
+    } catch {
+      return process.env.NODE_ENV === "production";
+    }
+  }
+
+  return process.env.NODE_ENV === "production";
+}
+
 export async function createSession(user: SessionUser) {
   const token = await new SignJWT({
     sub: user.id,
@@ -32,7 +46,7 @@ export async function createSession(user: SessionUser) {
   const store = await cookies();
   store.set(SESSION_COOKIE, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: shouldUseSecureCookies(),
     sameSite: "lax",
     path: "/",
     maxAge: SESSION_TTL_SECONDS
@@ -43,7 +57,7 @@ export async function clearSession() {
   const store = await cookies();
   store.set(SESSION_COOKIE, "", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: shouldUseSecureCookies(),
     sameSite: "lax",
     path: "/",
     expires: new Date(0)
