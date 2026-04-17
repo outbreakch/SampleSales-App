@@ -101,18 +101,58 @@ type StaffCopy = {
   appliedLanguage: string;
   savePreferences: string;
   loginEyebrow: string;
+  authBrandSubtitle: string;
   loginHeroTitle: string;
   loginHeroDescription: string;
   demoCredentials: string;
   signInTitle: string;
   emailLabel: string;
   passwordLabel: string;
+  forgotPassword: string;
   signIn: string;
   signingIn: string;
   unableToSignIn: string;
   ssoRolloutPath: string;
   openDemoCatalog: string;
   invalidCredentials: string;
+  demoAccessCta: string;
+  needLocalAccount: string;
+  registerAccountCta: string;
+  registerHeroTitle: string;
+  registerHeroDescription: string;
+  localAccountAccess: string;
+  localAccountRoleNote: string;
+  localAccountAdminNote: string;
+  registerEyebrow: string;
+  registerTitle: string;
+  firstNameLabel: string;
+  lastNameLabel: string;
+  confirmPasswordLabel: string;
+  createAccount: string;
+  creatingAccount: string;
+  alreadyHaveAccount: string;
+  forgotPasswordEyebrow: string;
+  forgotPasswordTitle: string;
+  forgotPasswordDescription: string;
+  sendResetLink: string;
+  sendingResetLink: string;
+  unableToSendResetInstructions: string;
+  resetLinkSent: string;
+  rememberedPassword: string;
+  backToLogin: string;
+  resetPasswordEyebrow: string;
+  resetPasswordTitle: string;
+  resetPasswordDescription: string;
+  resetLinkIncomplete: string;
+  newPasswordLabel: string;
+  newPasswordPlaceholder: string;
+  confirmPasswordPlaceholder: string;
+  updatePassword: string;
+  updatingPassword: string;
+  unableToResetPassword: string;
+  passwordUpdatedRedirecting: string;
+  needAnotherResetLink: string;
+  requestNewResetLink: string;
   adminEyebrow: string;
   adminTitle: string;
   adminDescription: string;
@@ -337,18 +377,59 @@ const en: StaffCopy = {
   appliedLanguage: "Default app language",
   savePreferences: "Save preferences",
   loginEyebrow: "Staff Access",
+  authBrandSubtitle: "Sample Sales",
   loginHeroTitle: "Fast checkout, clean controls, no SharePoint dependency.",
   loginHeroDescription: "Start with local authentication, then add Microsoft Entra ID as a second provider without redesigning the app.",
   demoCredentials: "Demo credentials",
   signInTitle: "Sign in to start selling",
   emailLabel: "Email address",
   passwordLabel: "Password",
+  forgotPassword: "Forgot password?",
   signIn: "Continue",
   signingIn: "Signing in...",
   unableToSignIn: "Unable to sign in.",
   ssoRolloutPath: "SSO rollout path: add Entra ID on the auth provider layer while keeping the same roles and user records.",
   openDemoCatalog: "Open demo catalog",
   invalidCredentials: "Email or password is incorrect.",
+  demoAccessCta: "Use demo credentials",
+  needLocalAccount: "Need a local account?",
+  registerAccountCta: "Register",
+  registerHeroTitle: "Create your staff account",
+  registerHeroDescription: "Register a real local-auth account, then set your country and language preferences after your first sign-in.",
+  localAccountAccess: "Local account access",
+  localAccountRoleNote: "Staff users start with the `STAFF` role.",
+  localAccountAdminNote: "Admins can promote, disable, or reset users from the app.",
+  registerEyebrow: "Register",
+  registerTitle: "Create an account",
+  firstNameLabel: "First name",
+  lastNameLabel: "Last name",
+  confirmPasswordLabel: "Confirm password",
+  createAccount: "Create account",
+  creatingAccount: "Creating account...",
+  alreadyHaveAccount: "Already have an account?",
+  forgotPasswordEyebrow: "Password reset",
+  forgotPasswordTitle: "Reset your password",
+  forgotPasswordDescription:
+    "Enter your account email address. If it exists, the app will send a one-time reset link that expires in 60 minutes.",
+  sendResetLink: "Send reset link",
+  sendingResetLink: "Sending reset link...",
+  unableToSendResetInstructions: "Unable to send reset instructions.",
+  resetLinkSent: "If an account exists for that email, a reset link has been sent.",
+  rememberedPassword: "Remembered your password?",
+  backToLogin: "Back to login",
+  resetPasswordEyebrow: "Password reset",
+  resetPasswordTitle: "Choose a new password",
+  resetPasswordDescription: "Use a strong password with at least 12 characters, including uppercase, lowercase, number, and symbol.",
+  resetLinkIncomplete: "This reset link is incomplete. Request a new one from the forgot password page.",
+  newPasswordLabel: "New password",
+  newPasswordPlaceholder: "Enter a strong password",
+  confirmPasswordPlaceholder: "Re-enter the password",
+  updatePassword: "Update password",
+  updatingPassword: "Updating password...",
+  unableToResetPassword: "Unable to reset password.",
+  passwordUpdatedRedirecting: "Password updated. Redirecting to login...",
+  needAnotherResetLink: "Need another reset link?",
+  requestNewResetLink: "Request a new one",
   adminEyebrow: "Admin",
   adminTitle: "Control plane for catalog, configuration, and auditability.",
   adminDescription: "Manage products, order support, taxes, and receipt content from one consistent operations surface.",
@@ -573,18 +654,60 @@ const fr: StaffCopy = {
   appliedLanguage: "Langue par defaut de l'application",
   savePreferences: "Enregistrer les preferences",
   loginEyebrow: "Acces employe",
+  authBrandSubtitle: "Vente d'echantillons",
   loginHeroTitle: "Paiement rapide, controles clairs, sans dependance a SharePoint.",
   loginHeroDescription: "Commencez avec une authentification locale, puis ajoutez Microsoft Entra ID sans refaire l'application.",
   demoCredentials: "Identifiants de demonstration",
   signInTitle: "Connectez-vous pour commencer a vendre",
   emailLabel: "Adresse courriel",
   passwordLabel: "Mot de passe",
+  forgotPassword: "Mot de passe oublie ?",
   signIn: "Continuer",
   signingIn: "Connexion...",
   unableToSignIn: "Impossible de se connecter.",
   ssoRolloutPath: "Parcours SSO : ajoutez Entra ID dans la couche fournisseur d'authentification tout en conservant les memes roles et dossiers utilisateurs.",
   openDemoCatalog: "Ouvrir le catalogue demo",
   invalidCredentials: "Le courriel ou le mot de passe est incorrect.",
+  demoAccessCta: "Utiliser les identifiants demo",
+  needLocalAccount: "Besoin d'un compte local ?",
+  registerAccountCta: "S'inscrire",
+  registerHeroTitle: "Creez votre compte employe",
+  registerHeroDescription: "Inscrivez un vrai compte local, puis definissez votre pays et vos preferences linguistiques apres votre premiere connexion.",
+  localAccountAccess: "Acces au compte local",
+  localAccountRoleNote: "Les employes commencent avec le role `STAFF`.",
+  localAccountAdminNote: "Les administrateurs peuvent promouvoir, desactiver ou reinitialiser les utilisateurs depuis l'application.",
+  registerEyebrow: "Inscription",
+  registerTitle: "Creer un compte",
+  firstNameLabel: "Prenom",
+  lastNameLabel: "Nom",
+  confirmPasswordLabel: "Confirmer le mot de passe",
+  createAccount: "Creer un compte",
+  creatingAccount: "Creation du compte...",
+  alreadyHaveAccount: "Vous avez deja un compte ?",
+  forgotPasswordEyebrow: "Reinitialisation du mot de passe",
+  forgotPasswordTitle: "Reinitialisez votre mot de passe",
+  forgotPasswordDescription:
+    "Entrez l'adresse courriel de votre compte. Si elle existe, l'application enverra un lien unique de reinitialisation valable 60 minutes.",
+  sendResetLink: "Envoyer le lien de reinitialisation",
+  sendingResetLink: "Envoi du lien de reinitialisation...",
+  unableToSendResetInstructions: "Impossible d'envoyer les instructions de reinitialisation.",
+  resetLinkSent: "Si un compte existe pour cette adresse, un lien de reinitialisation a ete envoye.",
+  rememberedPassword: "Vous vous souvenez de votre mot de passe ?",
+  backToLogin: "Retour a la connexion",
+  resetPasswordEyebrow: "Reinitialisation du mot de passe",
+  resetPasswordTitle: "Choisissez un nouveau mot de passe",
+  resetPasswordDescription:
+    "Utilisez un mot de passe fort d'au moins 12 caracteres avec majuscule, minuscule, chiffre et symbole.",
+  resetLinkIncomplete: "Ce lien de reinitialisation est incomplet. Demandez-en un nouveau depuis la page mot de passe oublie.",
+  newPasswordLabel: "Nouveau mot de passe",
+  newPasswordPlaceholder: "Entrez un mot de passe fort",
+  confirmPasswordPlaceholder: "Saisissez de nouveau le mot de passe",
+  updatePassword: "Mettre a jour le mot de passe",
+  updatingPassword: "Mise a jour du mot de passe...",
+  unableToResetPassword: "Impossible de reinitialiser le mot de passe.",
+  passwordUpdatedRedirecting: "Mot de passe mis a jour. Redirection vers la connexion...",
+  needAnotherResetLink: "Besoin d'un autre lien de reinitialisation ?",
+  requestNewResetLink: "En demander un nouveau",
   adminEyebrow: "Admin",
   adminTitle: "Surface de controle pour le catalogue, la configuration et la tracabilite.",
   adminDescription: "Gerez les produits, le soutien aux commandes, les taxes et le contenu des recus dans une surface d'exploitation coherente.",
@@ -714,4 +837,9 @@ export function normalizeStaffLocale(language?: string | null): StaffLocale {
 
 export function getStaffCopy(language?: string | null) {
   return normalizeStaffLocale(language) === "fr-CA" ? fr : en;
+}
+
+export function resolveStaffLocaleFromHeader(header?: string | null): StaffLocale {
+  const primaryLanguage = header?.split(",")[0]?.trim();
+  return normalizeStaffLocale(primaryLanguage);
 }
