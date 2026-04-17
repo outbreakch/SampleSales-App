@@ -5,6 +5,7 @@ type EmailPayload = {
   subject: string;
   html: string;
   text: string;
+  trackingKey?: string | null;
 };
 
 export async function sendEmail(payload: EmailPayload) {
@@ -16,7 +17,7 @@ export async function sendEmail(payload: EmailPayload) {
       to: payload.to,
       subject: payload.subject
     });
-    return { queued: true, provider };
+    return { queued: true, provider, trackingKey: payload.trackingKey ?? null };
   }
 
   if (provider === "mailjet") {
@@ -54,7 +55,15 @@ export async function sendEmail(payload: EmailPayload) {
               ],
               Subject: payload.subject,
               TextPart: payload.text,
-              HTMLPart: payload.html
+              HTMLPart: payload.html,
+              Headers: payload.trackingKey
+                ? {
+                    "X-MJ-CustomID": payload.trackingKey,
+                    "X-MJ-EventPayload": JSON.stringify({
+                      trackingKey: payload.trackingKey
+                    })
+                  }
+                : undefined
             }
           ]
         })
@@ -85,6 +94,7 @@ export async function sendEmail(payload: EmailPayload) {
         return {
           queued: false,
           provider,
+          trackingKey: payload.trackingKey ?? null,
           note:
             body?.Messages?.[0]?.Errors?.[0]?.ErrorMessage ??
             `Mailjet send failed with status ${response.status}.`
@@ -96,6 +106,7 @@ export async function sendEmail(payload: EmailPayload) {
       return {
         queued: message?.Status === "success",
         provider,
+        trackingKey: payload.trackingKey ?? null,
         messageId: message?.To?.[0]?.MessageID ?? null,
         messageUuid: message?.To?.[0]?.MessageUUID ?? null
       };
@@ -107,6 +118,7 @@ export async function sendEmail(payload: EmailPayload) {
       return {
         queued: false,
         provider,
+        trackingKey: payload.trackingKey ?? null,
         note: error instanceof Error ? error.message : "Mailjet request failed."
       };
     }
@@ -116,7 +128,12 @@ export async function sendEmail(payload: EmailPayload) {
     provider
   });
 
-  return { queued: false, provider, note: "Unsupported mail provider." };
+  return {
+    queued: false,
+    provider,
+    trackingKey: payload.trackingKey ?? null,
+    note: "Unsupported mail provider."
+  };
 }
 
 export async function sendReceiptEmail(payload: EmailPayload) {

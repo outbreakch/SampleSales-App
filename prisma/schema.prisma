@@ -43,6 +43,19 @@ enum EmailDeliveryType {
   PASSWORD_RESET_NOTIFICATION
 }
 
+enum EmailDeliveryStatus {
+  QUEUED
+  DELIVERED
+  OPENED
+  CLICKED
+  BOUNCED
+  BLOCKED
+  SPAM
+  UNSUBSCRIBED
+  TYPOFIX
+  FAILED
+}
+
 enum AuditAction {
   CREATE
   UPDATE
@@ -238,6 +251,7 @@ model EmailTemplate {
 model EmailDelivery {
   id             String            @id @default(cuid())
   type           EmailDeliveryType
+  status         EmailDeliveryStatus @default(QUEUED)
   actorUserId    String?
   userId         String?
   orderId        String?
@@ -246,9 +260,11 @@ model EmailDelivery {
   subject        String
   provider       String
   queued         Boolean
+  trackingKey    String?           @unique
   note           String?
   messageId      String?
   messageUuid    String?
+  lastEventAt    DateTime?
   createdAt      DateTime          @default(now())
   actor          User?             @relation("EmailDeliveryActor", fields: [actorUserId], references: [id], onDelete: SetNull)
   user           User?             @relation("EmailDeliveryUser", fields: [userId], references: [id], onDelete: SetNull)

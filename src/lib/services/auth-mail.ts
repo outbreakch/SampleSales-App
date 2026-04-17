@@ -1,5 +1,5 @@
 import { EmailDeliveryType } from "@prisma/client";
-import { recordEmailDelivery } from "@/lib/services/email-delivery-log";
+import { generateEmailTrackingKey, recordEmailDelivery } from "@/lib/services/email-delivery-log";
 import { sendEmail } from "@/lib/services/mail";
 
 type AuthEmailContext = {
@@ -59,6 +59,7 @@ export async function sendRegistrationConfirmationEmail({
 }: AuthEmailContext & AuthEmailDeliveryMetadata) {
   const signInUrl = `${(appUrl ?? process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "")}/login`;
   const subject = "Your BESTSELLER Sample Sales account is ready";
+  const trackingKey = generateEmailTrackingKey();
   const html = renderAuthShell(
     "Account created",
     `Hello ${firstName}, your local BESTSELLER Sample Sales account has been created successfully.`,
@@ -74,7 +75,8 @@ export async function sendRegistrationConfirmationEmail({
     to,
     subject,
     html,
-    text: stripHtml(html)
+    text: stripHtml(html),
+    trackingKey
   });
 
   await recordEmailDelivery({
@@ -82,6 +84,7 @@ export async function sendRegistrationConfirmationEmail({
     recipientEmail: to,
     subject,
     result,
+    trackingKey,
     actorUserId,
     userId
   });
@@ -98,6 +101,7 @@ export async function sendAdminProvisionedAccountEmail({
 }: AuthEmailContext & AuthEmailDeliveryMetadata) {
   const signInUrl = `${(appUrl ?? process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "")}/login`;
   const subject = "Your BESTSELLER Sample Sales account has been provisioned";
+  const trackingKey = generateEmailTrackingKey();
   const html = renderAuthShell(
     "Account provisioned",
     `Hello ${firstName}, an administrator has created your local BESTSELLER Sample Sales account.`,
@@ -113,7 +117,8 @@ export async function sendAdminProvisionedAccountEmail({
     to,
     subject,
     html,
-    text: stripHtml(html)
+    text: stripHtml(html),
+    trackingKey
   });
 
   await recordEmailDelivery({
@@ -121,6 +126,7 @@ export async function sendAdminProvisionedAccountEmail({
     recipientEmail: to,
     subject,
     result,
+    trackingKey,
     actorUserId,
     userId
   });
@@ -138,6 +144,7 @@ export async function sendInvitationEmail({
 }: AuthEmailContext & AuthEmailDeliveryMetadata & { resetUrl: string }) {
   const signInUrl = `${(appUrl ?? process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "")}/login`;
   const subject = "Set up your BESTSELLER Sample Sales account";
+  const trackingKey = generateEmailTrackingKey();
   const html = renderAuthShell(
     "You're invited",
     `Hello ${firstName}, an administrator invited you to BESTSELLER Sample Sales.`,
@@ -153,7 +160,8 @@ export async function sendInvitationEmail({
     to,
     subject,
     html,
-    text: stripHtml(html)
+    text: stripHtml(html),
+    trackingKey
   });
 
   await recordEmailDelivery({
@@ -161,6 +169,7 @@ export async function sendInvitationEmail({
     recipientEmail: to,
     subject,
     result,
+    trackingKey,
     actorUserId,
     userId
   });
@@ -177,6 +186,7 @@ export async function sendPasswordResetNotificationEmail({
 }: AuthEmailContext & AuthEmailDeliveryMetadata) {
   const signInUrl = `${(appUrl ?? process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "")}/login`;
   const subject = "Your BESTSELLER Sample Sales password was reset";
+  const trackingKey = generateEmailTrackingKey();
   const html = renderAuthShell(
     "Password reset",
     `Hello ${firstName}, the password for your local BESTSELLER Sample Sales account was reset.`,
@@ -192,7 +202,8 @@ export async function sendPasswordResetNotificationEmail({
     to,
     subject,
     html,
-    text: stripHtml(html)
+    text: stripHtml(html),
+    trackingKey
   });
 
   await recordEmailDelivery({
@@ -200,6 +211,7 @@ export async function sendPasswordResetNotificationEmail({
     recipientEmail: to,
     subject,
     result,
+    trackingKey,
     actorUserId,
     userId
   });
@@ -217,6 +229,7 @@ export async function sendPasswordResetLinkEmail({
 }: AuthEmailContext & AuthEmailDeliveryMetadata & { resetUrl: string }) {
   const signInUrl = `${(appUrl ?? process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "")}/login`;
   const subject = "Reset your BESTSELLER Sample Sales password";
+  const trackingKey = generateEmailTrackingKey();
   const html = renderAuthShell(
     "Password reset requested",
     `Hello ${firstName}, we received a request to reset the password for your local BESTSELLER Sample Sales account.`,
@@ -232,7 +245,8 @@ export async function sendPasswordResetLinkEmail({
     to,
     subject,
     html,
-    text: stripHtml(html)
+    text: stripHtml(html),
+    trackingKey
   });
 
   await recordEmailDelivery({
@@ -240,6 +254,7 @@ export async function sendPasswordResetLinkEmail({
     recipientEmail: to,
     subject,
     result,
+    trackingKey,
     actorUserId,
     userId
   });

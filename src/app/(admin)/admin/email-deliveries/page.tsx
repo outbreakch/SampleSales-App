@@ -1,8 +1,22 @@
 import { AppShell } from "@/components/layout/app-shell";
 import { PageIntro } from "@/components/layout/page-intro";
 import { Card } from "@/components/ui/card";
+import { EmailDeliveryStatus } from "@prisma/client";
 import { ORDER_VIEW_ROLES, requireAnyRole } from "@/lib/auth/rbac";
 import { prisma } from "@/lib/db/prisma";
+
+const statusTone: Record<EmailDeliveryStatus, string> = {
+  QUEUED: "text-stone",
+  DELIVERED: "text-success",
+  OPENED: "text-success",
+  CLICKED: "text-success",
+  BOUNCED: "text-danger",
+  BLOCKED: "text-danger",
+  SPAM: "text-danger",
+  UNSUBSCRIBED: "text-danger",
+  TYPOFIX: "text-warning",
+  FAILED: "text-danger"
+};
 
 export default async function AdminEmailDeliveriesPage() {
   await requireAnyRole(ORDER_VIEW_ROLES);
@@ -52,9 +66,14 @@ export default async function AdminEmailDeliveriesPage() {
                       <div className="mt-1 text-xs text-stone">{delivery.subject}</div>
                     </td>
                     <td className="py-4 pr-4">
-                      <span className={delivery.queued ? "text-success" : "text-danger"}>
-                        {delivery.queued ? "Queued" : "Failed"}
+                      <span className={statusTone[delivery.status]}>
+                        {delivery.status.replaceAll("_", " ")}
                       </span>
+                      {delivery.lastEventAt ? (
+                        <div className="mt-1 text-xs text-stone">
+                          Updated {delivery.lastEventAt.toLocaleString("en-CA")}
+                        </div>
+                      ) : null}
                     </td>
                     <td className="py-4 pr-4">
                       <div>{delivery.provider}</div>
@@ -74,8 +93,9 @@ export default async function AdminEmailDeliveriesPage() {
                       ) : null}
                     </td>
                     <td className="py-4 text-stone">
-                      {delivery.note ? <div>{delivery.note}</div> : <div className="text-ink">No error reported</div>}
+                      {delivery.note ? <div>{delivery.note}</div> : <div className="text-ink">No provider error reported</div>}
                       {delivery.messageId ? <div className="mt-1 text-xs">Message ID: {delivery.messageId}</div> : null}
+                      {delivery.trackingKey ? <div className="mt-1 text-xs">Tracking key: {delivery.trackingKey}</div> : null}
                     </td>
                   </tr>
                 ))}
