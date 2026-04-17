@@ -6,8 +6,8 @@ services:
     image: sample-sales-app:local
     container_name: sample-sales-app
     restart: unless-stopped
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     environment:
       NODE_ENV: production
       PORT: 3000

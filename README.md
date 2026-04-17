@@ -368,6 +368,12 @@ Email delivery history currently reflects app-side send outcomes, not full downs
 - downstream delivery/open/click/bounce tracking is not available with the current Mailjet account access model
 - provider `MessageID` values are still stored for audit and support use
 
+## HTTPS Deployment Notes
+
+- `sample-sales-app` should not be exposed directly on a public host port in the hardened server setup
+- TLS should terminate at the nginx reverse proxy container on ports `80` and `443`
+- the reverse proxy forwards only to the internal Docker service name `sample-sales-app:3000`
+
 ## Database Notes
 
 This project was developed against a PostgreSQL instance reached through a local tunnel. Reviewers should not assume that same connectivity model exists in server environments.
