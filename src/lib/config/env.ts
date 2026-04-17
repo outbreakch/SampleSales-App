@@ -6,6 +6,7 @@ const runtimeEnvSchema = z
   .object({
     DATABASE_URL: z.string().min(1, "DATABASE_URL is required."),
     APP_URL: z.string().url("APP_URL must be a valid URL."),
+    APP_ENV: z.string().min(1).default("production"),
     SESSION_SECRET: z.string().min(24, "SESSION_SECRET must be at least 24 characters."),
     MAIL_PROVIDER: mailProviderSchema,
     MAILJET_API_KEY: z.string().optional(),
@@ -40,6 +41,7 @@ export function getRuntimeEnvValidation() {
   return runtimeEnvSchema.safeParse({
     DATABASE_URL: process.env.DATABASE_URL,
     APP_URL: process.env.APP_URL,
+    APP_ENV: process.env.APP_ENV,
     SESSION_SECRET: process.env.SESSION_SECRET,
     MAIL_PROVIDER: process.env.MAIL_PROVIDER,
     MAILJET_API_KEY: process.env.MAILJET_API_KEY,

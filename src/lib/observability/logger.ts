@@ -13,7 +13,8 @@ const levelPriority: Record<LogLevel, number> = {
 const runtimeLogLevel = ((process.env.LOG_LEVEL ?? "info").toLowerCase() as LogLevel);
 const minimumLevel = levelPriority[runtimeLogLevel] ?? levelPriority.info;
 const serviceName = process.env.APP_LOG_SERVICE ?? "sample-sales-app";
-const environmentName = process.env.NODE_ENV ?? "development";
+const runtimeEnvironmentName = process.env.NODE_ENV ?? "development";
+const deploymentEnvironmentName = process.env.APP_ENV?.trim() || runtimeEnvironmentName;
 const sensitiveKeyPattern = /(password|secret|token|authorization|cookie|session|apikey|api_key|clientsecret)/i;
 
 function shouldLog(level: LogLevel) {
@@ -25,11 +26,11 @@ function serializeError(error: unknown) {
     return error;
   }
 
-  return {
-    name: error.name,
-    message: error.message,
-    stack: environmentName === "production" ? undefined : error.stack
-  };
+    return {
+      name: error.name,
+      message: error.message,
+      stack: runtimeEnvironmentName === "production" ? undefined : error.stack
+    };
 }
 
 function sanitizeValue(value: unknown, depth = 0): unknown {
@@ -76,7 +77,8 @@ function emit(level: LogLevel, event: string, context?: LogContext) {
     level,
     event,
     service: serviceName,
-    environment: environmentName,
+    environment: deploymentEnvironmentName,
+    runtimeEnvironment: runtimeEnvironmentName,
     ...(typeof sanitizedContext === "object" && sanitizedContext !== null ? sanitizedContext : {})
   };
 

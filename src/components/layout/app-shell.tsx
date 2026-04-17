@@ -9,6 +9,9 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   const session = await readSession();
   const copy = getStaffCopy(session?.preferredLanguage);
   const isAdmin = hasAnyRole(session, ADMIN_SECTION_ROLES);
+  const appEnvironment = (process.env.APP_ENV ?? "production").trim().toLowerCase();
+  const showEnvironmentBadge = !["production", "prod", "live"].includes(appEnvironment);
+  const environmentLabel = appEnvironment.toUpperCase();
   const baseNav: Array<{ href: Route; label: string }> = [
     { href: "/catalog", label: copy.navSell },
     { href: "/orders", label: copy.navOrders }
@@ -26,9 +29,14 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
                 B
               </span>
             </div>
-            <p className="hidden truncate text-sm uppercase tracking-[0.28em] text-stone sm:block">
-              Bestseller Sample Sales
-            </p>
+            <div className="hidden min-w-0 items-center gap-3 sm:flex">
+              <p className="truncate text-sm uppercase tracking-[0.28em] text-stone">Bestseller Sample Sales</p>
+              {showEnvironmentBadge ? (
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-amber-900">
+                  {environmentLabel}
+                </span>
+              ) : null}
+            </div>
           </Link>
           <HeaderControls language={session?.preferredLanguage} nav={nav} user={session} />
         </div>
