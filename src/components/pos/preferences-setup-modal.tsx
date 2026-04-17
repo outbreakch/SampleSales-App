@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -27,6 +28,7 @@ export function PreferencesSetupModal({
     preferredLanguage: StaffLocale;
   }) => void;
 }) {
+  const router = useRouter();
   const defaults = getDefaultPreferences();
   const [countryCode, setCountryCode] = useState<CountryConfig["code"]>(defaults.countryCode);
   const [preferredLanguage, setPreferredLanguage] = useState(defaults.preferredLanguage);
@@ -62,6 +64,7 @@ export function PreferencesSetupModal({
       preferredLanguage
     });
     setIsSaving(false);
+    router.refresh();
   }
 
   return (

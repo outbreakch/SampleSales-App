@@ -30,7 +30,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
               </span>
             </div>
             <div className="hidden min-w-0 items-center gap-3 sm:flex">
-              <p className="truncate text-sm uppercase tracking-[0.28em] text-stone">Bestseller Sample Sales</p>
+              <p className="truncate text-sm uppercase tracking-[0.28em] text-stone">{copy.appBrandLabel}</p>
               {showEnvironmentBadge ? (
                 <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-amber-900">
                   {environmentLabel}

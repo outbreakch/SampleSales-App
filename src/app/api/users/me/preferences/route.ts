@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { readSession } from "@/lib/auth/session";
+import { createSession, readSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { validationErrorResponse } from "@/lib/validation/http";
 import { userPreferencesSchema } from "@/lib/validation/user-preferences";
@@ -53,14 +53,29 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Country not found." }, { status: 404 });
   }
 
-  await prisma.user.update({
+  const updatedUser = await prisma.user.update({
     where: { id: session.id },
     data: {
       defaultCountryId: country.id,
       defaultRegionCode: null,
       preferredLanguage: payload.data.preferredLanguage,
       preferencesCompletedAt: new Date()
+    },
+    select: {
+      id: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      preferredLanguage: true
     }
+  });
+
+  await createSession({
+    id: updatedUser.id,
+    email: updatedUser.email,
+    name: `${updatedUser.firstName} ${updatedUser.lastName}`.trim(),
+    roles: session.roles,
+    preferredLanguage: updatedUser.preferredLanguage
   });
 
   return NextResponse.json({ ok: true });

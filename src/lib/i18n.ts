@@ -100,6 +100,7 @@ type StaffCopy = {
   appliedTemplates: string;
   appliedLanguage: string;
   savePreferences: string;
+  appBrandLabel: string;
   loginEyebrow: string;
   authBrandSubtitle: string;
   loginHeroTitle: string;
@@ -376,6 +377,7 @@ const en: StaffCopy = {
   appliedTemplates: "Localized receipt templates",
   appliedLanguage: "Default app language",
   savePreferences: "Save preferences",
+  appBrandLabel: "Bestseller Sample Sales",
   loginEyebrow: "Staff Access",
   authBrandSubtitle: "Sample Sales",
   loginHeroTitle: "Fast checkout, clean controls, no SharePoint dependency.",
@@ -653,6 +655,7 @@ const fr: StaffCopy = {
   appliedTemplates: "Modeles de recu localises",
   appliedLanguage: "Langue par defaut de l'application",
   savePreferences: "Enregistrer les preferences",
+  appBrandLabel: "Bestseller Vente d'echantillons",
   loginEyebrow: "Acces employe",
   authBrandSubtitle: "Vente d'echantillons",
   loginHeroTitle: "Paiement rapide, controles clairs, sans dependance a SharePoint.",

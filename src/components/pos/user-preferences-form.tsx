@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -16,6 +17,7 @@ export function UserPreferencesForm({
     preferredLanguage: string | null;
   };
 }) {
+  const router = useRouter();
   const fallbackLanguage = normalizeStaffLocale(
     typeof window === "undefined" ? undefined : window.navigator.language
   );
@@ -52,6 +54,7 @@ export function UserPreferencesForm({
 
     setMessage(copy.preferencesSaved);
     setIsSaving(false);
+    router.refresh();
   }
 
   return (
