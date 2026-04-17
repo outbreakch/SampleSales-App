@@ -1,12 +1,9 @@
 import { AppShell } from "@/components/layout/app-shell";
 import { PageIntro } from "@/components/layout/page-intro";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmailDeliveryStatus } from "@prisma/client";
 import { ORDER_VIEW_ROLES, requireAnyRole } from "@/lib/auth/rbac";
 import { prisma } from "@/lib/db/prisma";
-import { syncRecentEmailDeliveryStatuses } from "@/lib/services/mailjet-delivery-sync";
-import { refreshEmailDeliveryStatusesAction } from "./actions";
 
 const statusTone: Record<EmailDeliveryStatus, string> = {
   QUEUED: "text-stone",
@@ -21,9 +18,21 @@ const statusTone: Record<EmailDeliveryStatus, string> = {
   FAILED: "text-danger"
 };
 
+const statusLabel: Record<EmailDeliveryStatus, string> = {
+  QUEUED: "Accepted",
+  DELIVERED: "Delivered",
+  OPENED: "Opened",
+  CLICKED: "Clicked",
+  BOUNCED: "Bounced",
+  BLOCKED: "Blocked",
+  SPAM: "Spam",
+  UNSUBSCRIBED: "Unsubscribed",
+  TYPOFIX: "Typo fix",
+  FAILED: "Failed"
+};
+
 export default async function AdminEmailDeliveriesPage() {
   await requireAnyRole(ORDER_VIEW_ROLES);
-  await syncRecentEmailDeliveryStatuses();
 
   const deliveries = await prisma.emailDelivery.findMany({
     orderBy: {
@@ -44,14 +53,7 @@ export default async function AdminEmailDeliveriesPage() {
         <PageIntro
           eyebrow="Email"
           title="Delivery history"
-          description="Review the latest receipt and authentication emails sent by the app, including provider status, recipients, and any returned errors."
-          actions={
-            <form action={refreshEmailDeliveryStatusesAction}>
-              <Button type="submit" variant="secondary">
-                Refresh statuses
-              </Button>
-            </form>
-          }
+          description="Review the latest receipt and authentication emails sent by the app, including provider acceptance, recipients, and any returned errors."
         />
         <Card className="bg-white/96">
           <div className="overflow-x-auto p-6">
@@ -78,7 +80,7 @@ export default async function AdminEmailDeliveriesPage() {
                     </td>
                     <td className="py-4 pr-4">
                       <span className={statusTone[delivery.status]}>
-                        {delivery.status.replaceAll("_", " ")}
+                        {statusLabel[delivery.status]}
                       </span>
                       {delivery.lastEventAt ? (
                         <div className="mt-1 text-xs text-stone">
@@ -104,7 +106,13 @@ export default async function AdminEmailDeliveriesPage() {
                       ) : null}
                     </td>
                     <td className="py-4 text-stone">
-                      {delivery.note ? <div>{delivery.note}</div> : <div className="text-ink">No provider error reported</div>}
+                      {delivery.note ? (
+                        <div>{delivery.note}</div>
+                      ) : delivery.status === "QUEUED" ? (
+                        <div className="text-ink">Provider accepted this message. Downstream delivery tracking is not available.</div>
+                      ) : (
+                        <div className="text-ink">No provider error reported</div>
+                      )}
                       {delivery.messageId ? <div className="mt-1 text-xs">Message ID: {delivery.messageId}</div> : null}
                     </td>
                   </tr>

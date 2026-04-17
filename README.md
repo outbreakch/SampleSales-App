@@ -360,13 +360,13 @@ curl http://localhost:3000/api/health
 
 ### Mailjet delivery status tracking
 
-Email delivery history is no longer limited to the initial provider acceptance result.
+Email delivery history currently reflects app-side send outcomes, not full downstream provider events.
 
 - Send operations create a delivery record with status `QUEUED` or `FAILED`
-- The admin delivery-history page performs one server-side Mailjet status sync when it loads
-- The page also exposes a manual `Refresh statuses` action for on-demand polling
-- Status refresh is keyed off Mailjet `MessageID` values returned by the send API
-- Recent rows can move to `DELIVERED`, `OPENED`, `CLICKED`, `BOUNCED`, `BLOCKED`, `SPAM`, `UNSUBSCRIBED`, or `FAILED`
+- `QUEUED` is presented in the UI as `Accepted`
+- `Accepted` means Mailjet accepted the message for processing
+- downstream delivery/open/click/bounce tracking is not available with the current Mailjet account access model
+- provider `MessageID` values are still stored for audit and support use
 
 ## Database Notes
 
