@@ -103,6 +103,8 @@ export function PosWorkflow() {
     const matchesSearch =
       query.length === 0 ||
       item.name.toLowerCase().includes(query) ||
+      item.nameEn.toLowerCase().includes(query) ||
+      (item.nameFr?.toLowerCase().includes(query) ?? false) ||
       item.sku.toLowerCase().includes(query);
 
     return matchesCountry && matchesSearch;
@@ -200,7 +202,7 @@ export function PosWorkflow() {
         <section className="space-y-5 lg:min-h-0 lg:overflow-y-auto lg:pr-2">
           <Card className="bg-white/88">
             <div className="flex items-center gap-4 rounded-[26px] border border-black/10 bg-white px-5 py-4">
-              <CountryFlag countryCode={country.code} className="size-12" />
+              <CountryFlag countryCode={country.code} className="h-12 w-16 rounded-[14px]" />
               <div className="min-w-0">
                 <p className="text-xs uppercase tracking-[0.18em] text-stone">{country.name}</p>
                 <p className="truncate text-sm font-semibold text-ink">{companyName}</p>

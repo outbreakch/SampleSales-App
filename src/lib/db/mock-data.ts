@@ -38,12 +38,12 @@ export const countries: CountryConfig[] = [
 ];
 
 export const catalog: CatalogItemView[] = [
-  { id: "item-1", sku: "JN-001", name: "Jeans - Pants", price: 15, taxCategory: "STANDARD", countries: ["US", "CA", "AU"] },
-  { id: "item-2", sku: "SK-009", name: "Shorts - Skirts", price: 9, taxCategory: "STANDARD", countries: ["US", "CA", "AU"] },
-  { id: "item-3", sku: "TP-005", name: "Top - Short Sleeve", price: 5, taxCategory: "STANDARD", countries: ["US", "CA", "AU"] },
-  { id: "item-4", sku: "TP-010", name: "Top - Long Sleeve", price: 10, taxCategory: "STANDARD", countries: ["US", "CA", "AU"] },
-  { id: "item-5", sku: "DR-010", name: "Dress", price: 10, taxCategory: "STANDARD", countries: ["US", "CA", "AU"] },
-  { id: "item-6", sku: "OW-020", name: "Outerwear - Light", price: 20, taxCategory: "STANDARD", countries: ["US", "CA", "AU"] }
+  { id: "item-1", sku: "JN-001", name: "Jeans - Pants", nameEn: "Jeans - Pants", nameFr: "Jeans - Pantalons", price: 15, taxCategory: "STANDARD", countries: ["US", "CA", "AU"] },
+  { id: "item-2", sku: "SK-009", name: "Shorts - Skirts", nameEn: "Shorts - Skirts", nameFr: "Shorts - Jupes", price: 9, taxCategory: "STANDARD", countries: ["US", "CA", "AU"] },
+  { id: "item-3", sku: "TP-005", name: "Top - Short Sleeve", nameEn: "Top - Short Sleeve", nameFr: "Haut - Manches courtes", price: 5, taxCategory: "STANDARD", countries: ["US", "CA", "AU"] },
+  { id: "item-4", sku: "TP-010", name: "Top - Long Sleeve", nameEn: "Top - Long Sleeve", nameFr: "Haut - Manches longues", price: 10, taxCategory: "STANDARD", countries: ["US", "CA", "AU"] },
+  { id: "item-5", sku: "DR-010", name: "Dress", nameEn: "Dress", nameFr: "Jupe", price: 10, taxCategory: "STANDARD", countries: ["US", "CA", "AU"] },
+  { id: "item-6", sku: "OW-020", name: "Outerwear - Light", nameEn: "Outerwear - Light", nameFr: "Vetement d'exterieur - Leger", price: 20, taxCategory: "STANDARD", countries: ["US", "CA", "AU"] }
 ];
 
 export const recentOrders = [

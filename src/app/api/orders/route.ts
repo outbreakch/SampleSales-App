@@ -127,7 +127,7 @@ export async function POST(request: Request) {
       return {
         itemId: catalogItem.id,
         sku: catalogItem.sku,
-        name: catalogItem.name,
+        name: session.preferredLanguage?.startsWith("fr") && catalogItem.nameFr ? catalogItem.nameFr : catalogItem.name,
         quantity: item.quantity,
         unitPrice,
         lineSubtotal,

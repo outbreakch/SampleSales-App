@@ -58,6 +58,7 @@ export function EmailTemplateManager({
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [editorMode, setEditorMode] = useState<"visual" | "html">("html");
   const [newTemplate, setNewTemplate] = useState<NewTemplateDraft>({
     countryCode: "US",
@@ -197,6 +198,38 @@ export function EmailTemplateManager({
     router.refresh();
   }
 
+  async function deleteTemplate() {
+    if (!selectedTemplate) {
+      return;
+    }
+
+    const confirmed = window.confirm(copy.deleteTemplateConfirmation);
+
+    if (!confirmed) {
+      return;
+    }
+
+    setIsDeleting(true);
+    setMessage("");
+    setError("");
+
+    const response = await fetch(`/api/admin/email-templates/${selectedTemplate.id}`, {
+      method: "DELETE"
+    });
+
+    const payload = (await response.json()) as { error?: string };
+
+    if (!response.ok) {
+      setError(payload.error ?? copy.unableToDeleteTemplate);
+      setIsDeleting(false);
+      return;
+    }
+
+    setMessage(copy.templateDeleted);
+    setIsDeleting(false);
+    router.refresh();
+  }
+
   if (!selectedTemplate && templates.length === 0) {
     return <Card className="bg-white/96">{copy.noTemplatesFound}</Card>;
   }
@@ -329,6 +362,9 @@ export function EmailTemplateManager({
               <div className="flex gap-3">
                 <Button disabled={isSaving} onClick={saveTemplate} variant="success">
                   {isSaving ? copy.saving : copy.saveTemplate}
+                </Button>
+                <Button disabled={isDeleting} onClick={deleteTemplate} type="button" variant="danger">
+                  {isDeleting ? copy.deleting : copy.deleteTemplate}
                 </Button>
               </div>
               {message ? (

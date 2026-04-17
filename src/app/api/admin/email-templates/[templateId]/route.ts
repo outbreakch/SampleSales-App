@@ -71,3 +71,53 @@ export async function PATCH(
 
   return NextResponse.json({ ok: true });
 }
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ templateId: string }> }
+) {
+  const session = await requireAnyRole(SETTINGS_ROLES);
+
+  const parsedParams = resourceIdParamSchema.safeParse((await params).templateId);
+
+  if (!parsedParams.success) {
+    return validationErrorResponse(parsedParams.error, "Invalid email template id.");
+  }
+
+  const templateId = parsedParams.data;
+  const existingTemplate = await prisma.emailTemplate.findUnique({
+    where: {
+      id: templateId
+    }
+  });
+
+  if (!existingTemplate) {
+    return NextResponse.json({ error: "Email template not found." }, { status: 404 });
+  }
+
+  await prisma.$transaction([
+    prisma.emailTemplate.delete({
+      where: {
+        id: templateId
+      }
+    }),
+    prisma.auditLog.create({
+      data: {
+        actorUserId: session.id,
+        entityType: "EmailTemplate",
+        entityId: templateId,
+        action: AuditAction.DELETE,
+        details: {
+          deleted: {
+            name: existingTemplate.name,
+            subject: existingTemplate.subject,
+            languageCode: existingTemplate.languageCode,
+            isActive: existingTemplate.isActive
+          }
+        }
+      }
+    })
+  ]);
+
+  return NextResponse.json({ ok: true });
+}

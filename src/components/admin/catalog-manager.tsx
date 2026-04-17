@@ -21,6 +21,7 @@ type CatalogItemRow = {
   id: string;
   sku: string;
   name: string;
+  nameFr: string | null;
   description: string | null;
   basePrice: number;
   taxCategory: string;
@@ -30,6 +31,16 @@ type CatalogItemRow = {
 
 type EditingItem = CatalogItemRow & {
   countries: CatalogCountry[];
+};
+
+type NewCatalogItem = {
+  sku: string;
+  name: string;
+  nameFr: string;
+  description: string;
+  basePrice: number;
+  taxCategory: string;
+  countryCodes: CatalogCountry["countryCode"][];
 };
 
 export function CatalogManager({
@@ -42,8 +53,18 @@ export function CatalogManager({
   const router = useRouter();
   const copy = getStaffCopy(language);
   const [editingItem, setEditingItem] = useState<EditingItem | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
+  const [newItem, setNewItem] = useState<NewCatalogItem>({
+    sku: "",
+    name: "",
+    nameFr: "",
+    description: "",
+    basePrice: 0,
+    taxCategory: "STANDARD",
+    countryCodes: ["US", "CA", "AU"]
+  });
 
   async function saveItem() {
     if (!editingItem) {
@@ -61,6 +82,7 @@ export function CatalogManager({
       body: JSON.stringify({
         sku: editingItem.sku,
         name: editingItem.name,
+        nameFr: editingItem.nameFr ?? "",
         description: editingItem.description ?? "",
         basePrice: editingItem.basePrice,
         taxCategory: editingItem.taxCategory,
@@ -81,8 +103,47 @@ export function CatalogManager({
     router.refresh();
   }
 
+  async function createItem() {
+    setIsSaving(true);
+    setError("");
+
+    const response = await fetch("/api/admin/catalog", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(newItem)
+    });
+
+    const payload = (await response.json()) as { error?: string | { formErrors?: string[] } };
+
+    if (!response.ok) {
+      setError(typeof payload.error === "string" ? payload.error : copy.unableToSaveCatalogItem);
+      setIsSaving(false);
+      return;
+    }
+
+    setIsCreating(false);
+    setIsSaving(false);
+    setNewItem({
+      sku: "",
+      name: "",
+      nameFr: "",
+      description: "",
+      basePrice: 0,
+      taxCategory: "STANDARD",
+      countryCodes: ["US", "CA", "AU"]
+    });
+    router.refresh();
+  }
+
   return (
     <>
+      <div className="flex justify-end">
+        <Button onClick={() => setIsCreating(true)} variant="success">
+          {copy.addProduct}
+        </Button>
+      </div>
       <Card className="overflow-hidden bg-white/96 p-0">
         <div className="hidden grid-cols-[120px_1.2fr_140px_180px_170px_120px_80px] gap-4 border-b border-black/5 px-6 py-4 text-xs uppercase tracking-[0.24em] text-stone xl:grid">
           <span>SKU</span>
@@ -106,6 +167,7 @@ export function CatalogManager({
                   <div className="min-w-0">
                     <p className="text-xs uppercase tracking-[0.18em] text-stone">{item.sku}</p>
                     <p className="mt-2 text-lg font-semibold text-ink">{item.name}</p>
+                    {item.nameFr ? <p className="mt-1 text-sm font-medium text-stone">FR: {item.nameFr}</p> : null}
                     {item.description ? <p className="mt-2 text-sm leading-6 text-stone">{item.description}</p> : null}
                   </div>
                   <button
@@ -144,6 +206,7 @@ export function CatalogManager({
                 <span className="font-medium text-ink">{item.sku}</span>
                 <div>
                   <p className="text-ink">{item.name}</p>
+                  {item.nameFr ? <p className="mt-1 text-sm text-stone">FR: {item.nameFr}</p> : null}
                   {item.description ? <p className="mt-1 text-sm text-stone">{item.description}</p> : null}
                 </div>
                 <span className="text-ink">{formatCurrency(item.basePrice, "USD")}</span>
@@ -197,10 +260,17 @@ export function CatalogManager({
                     />
                   </div>
                   <div>
-                    <label className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone">{copy.nameLabel}</label>
+                    <label className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone">{copy.englishNameLabel}</label>
                     <Input
                       value={editingItem.name}
                       onChange={(event) => setEditingItem({ ...editingItem, name: event.target.value })}
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone">{copy.frenchNameLabel}</label>
+                    <Input
+                      value={editingItem.nameFr ?? ""}
+                      onChange={(event) => setEditingItem({ ...editingItem, nameFr: event.target.value || null })}
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -296,7 +366,7 @@ export function CatalogManager({
                           className={`bg-white text-ink ${!country.isAvailable ? "opacity-50" : ""}`}
                           disabled={!country.isAvailable}
                           min="0"
-                          placeholder={`Use base price ${editingItem.basePrice.toFixed(2)}`}
+                          placeholder={`${copy.overridePricePlaceholderPrefix} ${editingItem.basePrice.toFixed(2)}`}
                           step="0.01"
                           type="number"
                           value={country.overridePrice ?? ""}
@@ -322,10 +392,122 @@ export function CatalogManager({
                   <p className="text-xs uppercase tracking-[0.18em] text-white/60">{copy.actionsLabel}</p>
                   <div className="mt-4 flex flex-wrap gap-3">
                     <Button className="min-w-40" disabled={isSaving} onClick={saveItem} type="button" variant="success">
-                    {isSaving ? "Saving..." : "Save changes"}
+                    {isSaving ? copy.saving : copy.saveChanges}
                     </Button>
                     <Button onClick={() => setEditingItem(null)} type="button" variant="danger">
-                      Cancel
+                      {copy.cancel}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      ) : null}
+
+      {isCreating ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4 py-6 backdrop-blur-sm"
+          onClick={() => setIsCreating(false)}
+        >
+          <Card
+            className="relative max-h-[92vh] w-full max-w-4xl overflow-y-auto bg-white p-0"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              aria-label={copy.close}
+              className="absolute right-5 top-5 z-10 flex size-10 items-center justify-center rounded-full bg-black/5 transition hover:bg-black/10"
+              onClick={() => setIsCreating(false)}
+              type="button"
+            >
+              <X className="size-4" />
+            </button>
+            <div className="grid gap-0 xl:grid-cols-[1fr_0.9fr]">
+              <div className="p-6">
+                <p className="text-xs uppercase tracking-[0.24em] text-stone">{copy.addProduct}</p>
+                <h2 className="mt-2 text-3xl font-semibold text-ink">{copy.addProduct}</h2>
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone">SKU</label>
+                    <Input value={newItem.sku} onChange={(event) => setNewItem({ ...newItem, sku: event.target.value })} />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone">{copy.englishNameLabel}</label>
+                    <Input value={newItem.name} onChange={(event) => setNewItem({ ...newItem, name: event.target.value })} />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone">{copy.frenchNameLabel}</label>
+                    <Input value={newItem.nameFr} onChange={(event) => setNewItem({ ...newItem, nameFr: event.target.value })} />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone">{copy.descriptionLabel}</label>
+                    <textarea
+                      className="min-h-28 w-full rounded-[24px] border border-black/10 px-4 py-4 text-sm outline-none focus:border-ink"
+                      value={newItem.description}
+                      onChange={(event) => setNewItem({ ...newItem, description: event.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone">{copy.basePriceLabel}</label>
+                    <Input
+                      min="0"
+                      step="0.01"
+                      type="number"
+                      value={newItem.basePrice}
+                      onChange={(event) => setNewItem({ ...newItem, basePrice: Number(event.target.value) || 0 })}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone">{copy.taxCategoryLabel}</label>
+                    <Input
+                      value={newItem.taxCategory}
+                      onChange={(event) => setNewItem({ ...newItem, taxCategory: event.target.value })}
+                    />
+                  </div>
+                </div>
+                {error ? <p className="mt-4 text-sm text-danger">{error}</p> : null}
+              </div>
+              <div className="bg-ink p-6 text-white">
+                <p className="text-xs uppercase tracking-[0.24em] text-white/60">{copy.marketsLabel}</p>
+                <p className="mt-2 text-sm text-white/60">{copy.productAvailabilityDescription}</p>
+                <div className="mt-6 space-y-4">
+                  {(["US", "CA", "AU"] as const).map((countryCode) => {
+                    const selected = newItem.countryCodes.includes(countryCode);
+
+                    return (
+                      <button
+                        key={countryCode}
+                        className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left transition ${
+                          selected ? "border-white/25 bg-white/10 text-white" : "border-white/10 bg-white/[0.03] text-white/65"
+                        }`}
+                        onClick={() =>
+                          setNewItem((current) => ({
+                            ...current,
+                            countryCodes: current.countryCodes.includes(countryCode)
+                              ? current.countryCodes.filter((entry) => entry !== countryCode)
+                              : [...current.countryCodes, countryCode]
+                          }))
+                        }
+                        type="button"
+                      >
+                        <div className="flex items-center gap-3">
+                          <CountryFlag countryCode={countryCode} className="size-10" />
+                          <span className="font-medium">{countryCode}</span>
+                        </div>
+                        <div className={`flex size-9 items-center justify-center rounded-full ${selected ? "bg-sand text-ink" : "bg-white/5 text-white/50"}`}>
+                          {selected ? <CheckCircle2 className="size-4" /> : <Circle className="size-4" />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-8 border-t border-white/10 pt-6">
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    <Button className="min-w-40" disabled={isSaving} onClick={createItem} type="button" variant="success">
+                      {isSaving ? copy.creating : copy.addProduct}
+                    </Button>
+                    <Button onClick={() => setIsCreating(false)} type="button" variant="danger">
+                      {copy.cancel}
                     </Button>
                   </div>
                 </div>

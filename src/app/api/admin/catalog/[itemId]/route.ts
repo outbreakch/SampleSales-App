@@ -80,6 +80,7 @@ export async function PATCH(
       data: {
         sku: payload.data.sku,
         name: payload.data.name,
+        nameFr: payload.data.nameFr || null,
         description: payload.data.description || null,
         basePrice: payload.data.basePrice.toFixed(2),
         taxCategory: payload.data.taxCategory,
@@ -124,6 +125,7 @@ export async function PATCH(
           before: {
             sku: existingItem.sku,
             name: existingItem.name,
+            nameFr: existingItem.nameFr,
             description: existingItem.description,
             basePrice: Number(existingItem.basePrice),
             taxCategory: existingItem.taxCategory,

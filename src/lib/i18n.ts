@@ -216,6 +216,8 @@ type StaffCopy = {
   category: string;
   codeLabel: string;
   nameLabel: string;
+  englishNameLabel: string;
+  frenchNameLabel: string;
   ratePercent: string;
   effectiveFrom: string;
   effectiveTo: string;
@@ -240,6 +242,7 @@ type StaffCopy = {
   activeInCatalog: string;
   inactiveInCatalog: string;
   overridePriceLabel: string;
+  overridePricePlaceholderPrefix: string;
   productActiveSellable: string;
   customerAndOrder: string;
   totalsAndMarketContext: string;
@@ -248,7 +251,9 @@ type StaffCopy = {
   unableToCreateTemplate: string;
   templateSaved: string;
   templateCreated: string;
+  templateDeleted: string;
   noTemplatesFound: string;
+  unableToDeleteTemplate: string;
   templates: string;
   receiptTemplateEditor: string;
   receiptTemplateEditorDescription: string;
@@ -257,6 +262,9 @@ type StaffCopy = {
   inactiveTemplate: string;
   templateBody: string;
   saveTemplate: string;
+  deleteTemplate: string;
+  deleting: string;
+  deleteTemplateConfirmation: string;
   resetToRecommendedLayout: string;
   visualEditor: string;
   htmlSource: string;
@@ -269,6 +277,33 @@ type StaffCopy = {
   newTemplateDescription: string;
   templateName: string;
   emailSubject: string;
+  emailDeliveryHistoryEyebrow: string;
+  emailDeliveryHistoryTitle: string;
+  emailDeliveryHistoryDescription: string;
+  emailDeliveryWhen: string;
+  emailDeliveryType: string;
+  emailDeliveryRecipient: string;
+  emailDeliveryProvider: string;
+  emailDeliveryContext: string;
+  emailDeliveryDetails: string;
+  emailDeliveryUpdatedPrefix: string;
+  emailDeliveryMessageIdLabel: string;
+  emailDeliveryNoRecords: string;
+  emailDeliveryProviderAcceptedNote: string;
+  emailDeliveryNoProviderError: string;
+  emailDeliveryOrderPrefix: string;
+  emailDeliveryUserPrefix: string;
+  emailDeliveryByPrefix: string;
+  emailDeliveryAccepted: string;
+  emailDeliveryDelivered: string;
+  emailDeliveryOpened: string;
+  emailDeliveryClicked: string;
+  emailDeliveryBounced: string;
+  emailDeliveryBlocked: string;
+  emailDeliverySpam: string;
+  emailDeliveryUnsubscribed: string;
+  emailDeliveryTypoFix: string;
+  emailDeliveryFailed: string;
   starterLayout: string;
   starterLayoutDescription: string;
   creating: string;
@@ -494,6 +529,8 @@ const en: StaffCopy = {
   category: "Category",
   codeLabel: "Code",
   nameLabel: "Name",
+  englishNameLabel: "English name",
+  frenchNameLabel: "French name",
   ratePercent: "Rate percent",
   effectiveFrom: "Effective from",
   effectiveTo: "Effective to",
@@ -518,6 +555,7 @@ const en: StaffCopy = {
   activeInCatalog: "Active in catalog",
   inactiveInCatalog: "Inactive in catalog",
   overridePriceLabel: "Override price",
+  overridePricePlaceholderPrefix: "Use base price",
   productActiveSellable: "Product is active and sellable",
   customerAndOrder: "Customer and order",
   totalsAndMarketContext: "Totals and market context",
@@ -526,7 +564,9 @@ const en: StaffCopy = {
   unableToCreateTemplate: "Unable to create template.",
   templateSaved: "Template saved.",
   templateCreated: "Template created.",
+  templateDeleted: "Template deleted.",
   noTemplatesFound: "No templates found.",
+  unableToDeleteTemplate: "Unable to delete template.",
   templates: "Templates",
   receiptTemplateEditor: "Receipt template editor",
   receiptTemplateEditorDescription: "Build a structured receipt email with editable copy, live preview, and country-specific legal content.",
@@ -535,6 +575,9 @@ const en: StaffCopy = {
   inactiveTemplate: "Inactive template",
   templateBody: "Template body",
   saveTemplate: "Save template",
+  deleteTemplate: "Delete template",
+  deleting: "Deleting...",
+  deleteTemplateConfirmation: "Delete this receipt template?",
   resetToRecommendedLayout: "Reset to recommended layout",
   visualEditor: "Visual editor",
   htmlSource: "HTML source",
@@ -547,6 +590,33 @@ const en: StaffCopy = {
   newTemplateDescription: "New templates start from the recommended receipt structure and automatically pick up the selected country footer and legal copy.",
   templateName: "Template name",
   emailSubject: "Email subject",
+  emailDeliveryHistoryEyebrow: "Email",
+  emailDeliveryHistoryTitle: "Delivery history",
+  emailDeliveryHistoryDescription: "Review the latest receipt and authentication emails sent by the app, including provider acceptance, recipients, and any returned errors.",
+  emailDeliveryWhen: "When",
+  emailDeliveryType: "Type",
+  emailDeliveryRecipient: "Recipient",
+  emailDeliveryProvider: "Provider",
+  emailDeliveryContext: "Context",
+  emailDeliveryDetails: "Details",
+  emailDeliveryUpdatedPrefix: "Updated",
+  emailDeliveryMessageIdLabel: "Message ID",
+  emailDeliveryNoRecords: "No email deliveries have been recorded yet.",
+  emailDeliveryProviderAcceptedNote: "Provider accepted this message. Downstream delivery tracking is not available.",
+  emailDeliveryNoProviderError: "No provider error reported",
+  emailDeliveryOrderPrefix: "Order",
+  emailDeliveryUserPrefix: "User",
+  emailDeliveryByPrefix: "By",
+  emailDeliveryAccepted: "Accepted",
+  emailDeliveryDelivered: "Delivered",
+  emailDeliveryOpened: "Opened",
+  emailDeliveryClicked: "Clicked",
+  emailDeliveryBounced: "Bounced",
+  emailDeliveryBlocked: "Blocked",
+  emailDeliverySpam: "Spam",
+  emailDeliveryUnsubscribed: "Unsubscribed",
+  emailDeliveryTypoFix: "Typo fix",
+  emailDeliveryFailed: "Failed",
   starterLayout: "Starter layout",
   starterLayoutDescription: "This base layout includes order details, item rows, totals, and country-specific footer/legal placeholders.",
   creating: "Creating...",
@@ -773,6 +843,8 @@ const fr: StaffCopy = {
   category: "Categorie",
   codeLabel: "Code",
   nameLabel: "Nom",
+  englishNameLabel: "Nom anglais",
+  frenchNameLabel: "Nom francais",
   ratePercent: "Taux en pourcentage",
   effectiveFrom: "En vigueur a partir de",
   effectiveTo: "En vigueur jusqu'a",
@@ -797,6 +869,7 @@ const fr: StaffCopy = {
   activeInCatalog: "Actif dans le catalogue",
   inactiveInCatalog: "Inactif dans le catalogue",
   overridePriceLabel: "Prix remplace",
+  overridePricePlaceholderPrefix: "Utiliser le prix de base",
   productActiveSellable: "Le produit est actif et vendable",
   customerAndOrder: "Client et commande",
   totalsAndMarketContext: "Totaux et contexte du marche",
@@ -805,7 +878,9 @@ const fr: StaffCopy = {
   unableToCreateTemplate: "Impossible de creer le modele.",
   templateSaved: "Modele enregistre.",
   templateCreated: "Modele cree.",
+  templateDeleted: "Modele supprime.",
   noTemplatesFound: "Aucun modele trouve.",
+  unableToDeleteTemplate: "Impossible de supprimer le modele.",
   templates: "Modeles",
   receiptTemplateEditor: "Editeur de modele de recu",
   receiptTemplateEditorDescription: "Construisez un courriel de recu structure avec texte modifiable, apercu en direct et contenu legal par pays.",
@@ -814,6 +889,9 @@ const fr: StaffCopy = {
   inactiveTemplate: "Modele inactif",
   templateBody: "Corps du modele",
   saveTemplate: "Enregistrer le modele",
+  deleteTemplate: "Supprimer le modele",
+  deleting: "Suppression...",
+  deleteTemplateConfirmation: "Supprimer ce modele de recu ?",
   resetToRecommendedLayout: "Reinitialiser la mise en page recommandee",
   visualEditor: "Editeur visuel",
   htmlSource: "Source HTML",
@@ -826,6 +904,34 @@ const fr: StaffCopy = {
   newTemplateDescription: "Les nouveaux modeles commencent avec la structure de recu recommandee et recuperent automatiquement le pied de page et le contenu legal du pays choisi.",
   templateName: "Nom du modele",
   emailSubject: "Objet du courriel",
+  emailDeliveryHistoryEyebrow: "Courriel",
+  emailDeliveryHistoryTitle: "Historique de livraison",
+  emailDeliveryHistoryDescription:
+    "Passez en revue les recus et courriels d'authentification envoyes par l'application, y compris l'acceptation du fournisseur, les destinataires et les erreurs retournees.",
+  emailDeliveryWhen: "Date",
+  emailDeliveryType: "Type",
+  emailDeliveryRecipient: "Destinataire",
+  emailDeliveryProvider: "Fournisseur",
+  emailDeliveryContext: "Contexte",
+  emailDeliveryDetails: "Details",
+  emailDeliveryUpdatedPrefix: "Mis a jour",
+  emailDeliveryMessageIdLabel: "ID message",
+  emailDeliveryNoRecords: "Aucun envoi de courriel n'a encore ete enregistre.",
+  emailDeliveryProviderAcceptedNote: "Le fournisseur a accepte ce message. Le suivi aval n'est pas disponible.",
+  emailDeliveryNoProviderError: "Aucune erreur fournisseur signalee",
+  emailDeliveryOrderPrefix: "Commande",
+  emailDeliveryUserPrefix: "Utilisateur",
+  emailDeliveryByPrefix: "Par",
+  emailDeliveryAccepted: "Accepte",
+  emailDeliveryDelivered: "Livre",
+  emailDeliveryOpened: "Ouvert",
+  emailDeliveryClicked: "Clique",
+  emailDeliveryBounced: "Rejete",
+  emailDeliveryBlocked: "Bloque",
+  emailDeliverySpam: "Pourriel",
+  emailDeliveryUnsubscribed: "Desabonne",
+  emailDeliveryTypoFix: "Correction typo",
+  emailDeliveryFailed: "Echec",
   starterLayout: "Mise en page initiale",
   starterLayoutDescription: "Cette structure de base inclut les details de commande, les lignes d'articles, les totaux et les espaces reserves de pied de page et contenu legal.",
   creating: "Creation...",

@@ -4,6 +4,7 @@ import { countryCodeSchema, optionalTextSchema, skuSchema, taxCategorySchema, ti
 export const catalogItemSchema = z.object({
   sku: skuSchema,
   name: titleSchema,
+  nameFr: optionalTextSchema(120),
   description: optionalTextSchema(500),
   basePrice: z.number().nonnegative(),
   taxCategory: taxCategorySchema,
@@ -13,6 +14,7 @@ export const catalogItemSchema = z.object({
 export const catalogItemUpdateSchema = z.object({
   sku: skuSchema,
   name: titleSchema,
+  nameFr: optionalTextSchema(120),
   description: optionalTextSchema(500),
   basePrice: z.number().nonnegative(),
   taxCategory: taxCategorySchema,

@@ -31,6 +31,7 @@ export async function GET() {
       id: item.id,
       sku: item.sku,
       name: item.name,
+      nameFr: item.nameFr,
       description: item.description,
       basePrice: Number(item.basePrice),
       taxCategory: item.taxCategory,
@@ -83,6 +84,7 @@ export async function POST(request: Request) {
       data: {
         sku: payload.data.sku.trim(),
         name: payload.data.name.trim(),
+        nameFr: payload.data.nameFr?.trim() || null,
         description: payload.data.description?.trim() || null,
         basePrice: payload.data.basePrice.toFixed(2),
         taxCategory: payload.data.taxCategory.trim(),

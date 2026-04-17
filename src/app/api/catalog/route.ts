@@ -34,14 +34,20 @@ export async function GET() {
   });
 
   return NextResponse.json({
-    items: items.map((item) => ({
-      id: item.id,
-      sku: item.sku,
-      name: item.name,
-      description: item.description ?? undefined,
-      price: Number(item.countries[0]?.overridePrice ?? item.basePrice),
-      taxCategory: item.taxCategory,
-      countries: item.countries.map((entry) => entry.country.code)
-    }))
+    items: items.map((item) => {
+      const localizedName = session.preferredLanguage?.startsWith("fr") && item.nameFr ? item.nameFr : item.name;
+
+      return {
+        id: item.id,
+        sku: item.sku,
+        name: localizedName,
+        nameEn: item.name,
+        nameFr: item.nameFr ?? undefined,
+        description: item.description ?? undefined,
+        price: Number(item.countries[0]?.overridePrice ?? item.basePrice),
+        taxCategory: item.taxCategory,
+        countries: item.countries.map((entry) => entry.country.code)
+      };
+    })
   });
 }

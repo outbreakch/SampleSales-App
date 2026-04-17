@@ -166,6 +166,7 @@ model CatalogItem {
   id              String               @id @default(cuid())
   sku             String               @unique
   name            String
+  nameFr          String?
   description     String?
   taxCategory     String
   basePrice       Decimal              @db.Decimal(10, 2)

@@ -24,6 +24,8 @@ export type CatalogItemView = {
   id: string;
   sku: string;
   name: string;
+  nameEn: string;
+  nameFr?: string;
   description?: string;
   price: number;
   taxCategory: string;

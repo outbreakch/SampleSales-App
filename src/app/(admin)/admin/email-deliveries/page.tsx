@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { EmailDeliveryStatus } from "@prisma/client";
 import { ORDER_VIEW_ROLES, requireAnyRole } from "@/lib/auth/rbac";
 import { prisma } from "@/lib/db/prisma";
+import { getStaffCopy } from "@/lib/i18n";
 
 const statusTone: Record<EmailDeliveryStatus, string> = {
   QUEUED: "text-stone",
@@ -18,21 +19,22 @@ const statusTone: Record<EmailDeliveryStatus, string> = {
   FAILED: "text-danger"
 };
 
-const statusLabel: Record<EmailDeliveryStatus, string> = {
-  QUEUED: "Accepted",
-  DELIVERED: "Delivered",
-  OPENED: "Opened",
-  CLICKED: "Clicked",
-  BOUNCED: "Bounced",
-  BLOCKED: "Blocked",
-  SPAM: "Spam",
-  UNSUBSCRIBED: "Unsubscribed",
-  TYPOFIX: "Typo fix",
-  FAILED: "Failed"
-};
-
 export default async function AdminEmailDeliveriesPage() {
-  await requireAnyRole(ORDER_VIEW_ROLES);
+  const session = await requireAnyRole(ORDER_VIEW_ROLES);
+  const copy = getStaffCopy(session.preferredLanguage);
+
+  const statusLabel: Record<EmailDeliveryStatus, string> = {
+    QUEUED: copy.emailDeliveryAccepted,
+    DELIVERED: copy.emailDeliveryDelivered,
+    OPENED: copy.emailDeliveryOpened,
+    CLICKED: copy.emailDeliveryClicked,
+    BOUNCED: copy.emailDeliveryBounced,
+    BLOCKED: copy.emailDeliveryBlocked,
+    SPAM: copy.emailDeliverySpam,
+    UNSUBSCRIBED: copy.emailDeliveryUnsubscribed,
+    TYPOFIX: copy.emailDeliveryTypoFix,
+    FAILED: copy.emailDeliveryFailed
+  };
 
   const deliveries = await prisma.emailDelivery.findMany({
     orderBy: {
@@ -51,22 +53,22 @@ export default async function AdminEmailDeliveriesPage() {
     <AppShell>
       <div className="space-y-6">
         <PageIntro
-          eyebrow="Email"
-          title="Delivery history"
-          description="Review the latest receipt and authentication emails sent by the app, including provider acceptance, recipients, and any returned errors."
+          eyebrow={copy.emailDeliveryHistoryEyebrow}
+          title={copy.emailDeliveryHistoryTitle}
+          description={copy.emailDeliveryHistoryDescription}
         />
         <Card className="bg-white/96">
           <div className="overflow-x-auto p-6">
             <table className="min-w-full text-left text-sm text-ink">
               <thead>
                 <tr className="border-b border-black/5 text-xs uppercase tracking-[0.24em] text-stone">
-                  <th className="pb-4 pr-4 font-medium">When</th>
-                  <th className="pb-4 pr-4 font-medium">Type</th>
-                  <th className="pb-4 pr-4 font-medium">Recipient</th>
-                  <th className="pb-4 pr-4 font-medium">Status</th>
-                  <th className="pb-4 pr-4 font-medium">Provider</th>
-                  <th className="pb-4 pr-4 font-medium">Context</th>
-                  <th className="pb-4 font-medium">Details</th>
+                  <th className="pb-4 pr-4 font-medium">{copy.emailDeliveryWhen}</th>
+                  <th className="pb-4 pr-4 font-medium">{copy.emailDeliveryType}</th>
+                  <th className="pb-4 pr-4 font-medium">{copy.emailDeliveryRecipient}</th>
+                  <th className="pb-4 pr-4 font-medium">{copy.status}</th>
+                  <th className="pb-4 pr-4 font-medium">{copy.emailDeliveryProvider}</th>
+                  <th className="pb-4 pr-4 font-medium">{copy.emailDeliveryContext}</th>
+                  <th className="pb-4 font-medium">{copy.emailDeliveryDetails}</th>
                 </tr>
               </thead>
               <tbody>
@@ -84,7 +86,7 @@ export default async function AdminEmailDeliveriesPage() {
                       </span>
                       {delivery.lastEventAt ? (
                         <div className="mt-1 text-xs text-stone">
-                          Updated {delivery.lastEventAt.toLocaleString("en-CA")}
+                          {copy.emailDeliveryUpdatedPrefix} {delivery.lastEventAt.toLocaleString("en-CA")}
                         </div>
                       ) : null}
                     </td>
@@ -93,15 +95,15 @@ export default async function AdminEmailDeliveriesPage() {
                       {delivery.messageUuid ? <div className="mt-1 text-xs text-stone">{delivery.messageUuid}</div> : null}
                     </td>
                     <td className="py-4 pr-4 text-stone">
-                      {delivery.order ? <div>Order {delivery.order.orderNumber}</div> : null}
+                      {delivery.order ? <div>{copy.emailDeliveryOrderPrefix} {delivery.order.orderNumber}</div> : null}
                       {delivery.user ? (
                         <div>
-                          User {delivery.user.firstName} {delivery.user.lastName}
+                          {copy.emailDeliveryUserPrefix} {delivery.user.firstName} {delivery.user.lastName}
                         </div>
                       ) : null}
                       {delivery.actor ? (
                         <div className="mt-1 text-xs">
-                          By {delivery.actor.firstName} {delivery.actor.lastName}
+                          {copy.emailDeliveryByPrefix} {delivery.actor.firstName} {delivery.actor.lastName}
                         </div>
                       ) : null}
                     </td>
@@ -109,17 +111,17 @@ export default async function AdminEmailDeliveriesPage() {
                       {delivery.note ? (
                         <div>{delivery.note}</div>
                       ) : delivery.status === "QUEUED" ? (
-                        <div className="text-ink">Provider accepted this message. Downstream delivery tracking is not available.</div>
+                        <div className="text-ink">{copy.emailDeliveryProviderAcceptedNote}</div>
                       ) : (
-                        <div className="text-ink">No provider error reported</div>
+                        <div className="text-ink">{copy.emailDeliveryNoProviderError}</div>
                       )}
-                      {delivery.messageId ? <div className="mt-1 text-xs">Message ID: {delivery.messageId}</div> : null}
+                      {delivery.messageId ? <div className="mt-1 text-xs">{copy.emailDeliveryMessageIdLabel}: {delivery.messageId}</div> : null}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            {deliveries.length === 0 ? <p className="text-sm text-stone">No email deliveries have been recorded yet.</p> : null}
+            {deliveries.length === 0 ? <p className="text-sm text-stone">{copy.emailDeliveryNoRecords}</p> : null}
           </div>
         </Card>
       </div>
