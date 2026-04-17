@@ -1,5 +1,6 @@
 import { EmailDeliveryType } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
+import { logger } from "@/lib/observability/logger";
 
 type DeliveryResult = {
   queued: boolean;
@@ -30,20 +31,35 @@ export async function recordEmailDelivery({
   orderId,
   templateId
 }: RecordEmailDeliveryInput) {
-  await prisma.emailDelivery.create({
-    data: {
+  try {
+    await prisma.emailDelivery.create({
+      data: {
+        type,
+        actorUserId: actorUserId ?? null,
+        userId: userId ?? null,
+        orderId: orderId ?? null,
+        templateId: templateId ?? null,
+        recipientEmail,
+        subject,
+        provider: result.provider,
+        queued: result.queued,
+        note: result.note ?? null,
+        messageId: result.messageId != null ? String(result.messageId) : null,
+        messageUuid: result.messageUuid ?? null
+      }
+    });
+  } catch (error) {
+    logger.error("email.delivery_log.persist_failed", {
       type,
-      actorUserId: actorUserId ?? null,
-      userId: userId ?? null,
-      orderId: orderId ?? null,
-      templateId: templateId ?? null,
       recipientEmail,
       subject,
       provider: result.provider,
       queued: result.queued,
-      note: result.note ?? null,
-      messageId: result.messageId != null ? String(result.messageId) : null,
-      messageUuid: result.messageUuid ?? null
-    }
-  });
+      actorUserId: actorUserId ?? null,
+      userId: userId ?? null,
+      orderId: orderId ?? null,
+      templateId: templateId ?? null,
+      error
+    });
+  }
 }
