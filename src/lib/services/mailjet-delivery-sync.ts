@@ -143,6 +143,9 @@ async function fetchMailjetMessage(messageId: string) {
   });
 
   if (response.status === 404) {
+    logger.warn("mailjet.delivery_sync.message_not_found", {
+      messageId
+    });
     return null;
   }
 
@@ -163,6 +166,9 @@ async function fetchMailjetMessage(messageId: string) {
 
 export async function syncRecentEmailDeliveryStatuses() {
   if ((process.env.MAIL_PROVIDER ?? "console") !== "mailjet") {
+    logger.info("mailjet.delivery_sync.skipped_provider", {
+      provider: process.env.MAIL_PROVIDER ?? "console"
+    });
     return {
       checked: 0,
       updated: 0,
@@ -188,6 +194,10 @@ export async function syncRecentEmailDeliveryStatuses() {
       createdAt: "desc"
     },
     take: 25
+  });
+
+  logger.info("mailjet.delivery_sync.started", {
+    checkedCandidates: deliveries.length
   });
 
   let updated = 0;
@@ -242,6 +252,12 @@ export async function syncRecentEmailDeliveryStatuses() {
       }
     })
   );
+
+  logger.info("mailjet.delivery_sync.completed", {
+    checked: deliveries.length,
+    updated,
+    skipped
+  });
 
   return {
     checked: deliveries.length,
