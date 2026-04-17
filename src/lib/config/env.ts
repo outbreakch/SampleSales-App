@@ -10,7 +10,6 @@ const runtimeEnvSchema = z
     MAIL_PROVIDER: mailProviderSchema,
     MAILJET_API_KEY: z.string().optional(),
     MAILJET_API_SECRET: z.string().optional(),
-    MAILJET_WEBHOOK_BASIC_AUTH: z.string().optional(),
     MAIL_FROM: z.string().email("MAIL_FROM must be a valid email address."),
     LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
     APP_LOG_SERVICE: z.string().min(1).default("sample-sales-app")
@@ -45,7 +44,6 @@ export function getRuntimeEnvValidation() {
     MAIL_PROVIDER: process.env.MAIL_PROVIDER,
     MAILJET_API_KEY: process.env.MAILJET_API_KEY,
     MAILJET_API_SECRET: process.env.MAILJET_API_SECRET,
-    MAILJET_WEBHOOK_BASIC_AUTH: process.env.MAILJET_WEBHOOK_BASIC_AUTH,
     MAIL_FROM: process.env.MAIL_FROM,
     LOG_LEVEL: process.env.LOG_LEVEL,
     APP_LOG_SERVICE: process.env.APP_LOG_SERVICE

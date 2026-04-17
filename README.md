@@ -191,7 +191,6 @@ Create `.env` from `.env.example` and set at minimum:
 - `MAIL_PROVIDER`
 - `MAILJET_API_KEY`
 - `MAILJET_API_SECRET`
-- `MAILJET_WEBHOOK_BASIC_AUTH`
 - `MAIL_FROM`
 - `LOG_LEVEL`
 - `APP_LOG_SERVICE`
@@ -357,7 +356,6 @@ curl http://localhost:3000/api/health
 - `MAIL_PROVIDER`
 - `MAILJET_API_KEY`
 - `MAILJET_API_SECRET`
-- `MAILJET_WEBHOOK_BASIC_AUTH`
 - `MAIL_FROM`
 
 ### Mailjet delivery status tracking
@@ -365,17 +363,10 @@ curl http://localhost:3000/api/health
 Email delivery history is no longer limited to the initial provider acceptance result.
 
 - Send operations create a delivery record with status `QUEUED` or `FAILED`
-- Mailjet event callbacks can move that record to `DELIVERED`, `OPENED`, `CLICKED`, `BOUNCED`, `BLOCKED`, `SPAM`, `UNSUBSCRIBED`, or `TYPOFIX`
-- The callback endpoint is `POST /api/webhooks/mailjet`
-- If `MAILJET_WEBHOOK_BASIC_AUTH` is set, the route requires HTTP Basic auth in the form `username:password`
-
-Recommended Mailjet webhook URL shape:
-
-```text
-https://username:password@your-hostname/api/webhooks/mailjet
-```
-
-The Mailjet Event Tracking API documentation recommends HTTPS plus basic authentication for webhook endpoints.
+- The admin delivery-history page performs one server-side Mailjet status sync when it loads
+- The page also exposes a manual `Refresh statuses` action for on-demand polling
+- Status refresh is keyed off Mailjet `MessageID` values returned by the send API
+- Recent rows can move to `DELIVERED`, `OPENED`, `CLICKED`, `BOUNCED`, `BLOCKED`, `SPAM`, `UNSUBSCRIBED`, or `FAILED`
 
 ## Database Notes
 

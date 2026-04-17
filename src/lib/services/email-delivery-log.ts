@@ -1,4 +1,3 @@
-import crypto from "node:crypto";
 import { EmailDeliveryStatus, EmailDeliveryType } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { logger } from "@/lib/observability/logger";
@@ -9,7 +8,6 @@ type DeliveryResult = {
   note?: string | null;
   messageId?: number | string | null;
   messageUuid?: string | null;
-  trackingKey?: string | null;
 };
 
 type RecordEmailDeliveryInput = {
@@ -21,12 +19,10 @@ type RecordEmailDeliveryInput = {
   userId?: string | null;
   orderId?: string | null;
   templateId?: string | null;
-  trackingKey?: string | null;
 };
 
 type UpdateEmailDeliveryStatusInput = {
   status: EmailDeliveryStatus;
-  trackingKey?: string | null;
   messageId?: number | string | null;
   messageUuid?: string | null;
   recipientEmail?: string | null;
@@ -47,10 +43,6 @@ const deliveryStatusPriority: Record<EmailDeliveryStatus, number> = {
   FAILED: 40
 };
 
-export function generateEmailTrackingKey() {
-  return crypto.randomUUID();
-}
-
 export async function recordEmailDelivery({
   type,
   recipientEmail,
@@ -59,8 +51,7 @@ export async function recordEmailDelivery({
   actorUserId,
   userId,
   orderId,
-  templateId,
-  trackingKey
+  templateId
 }: RecordEmailDeliveryInput) {
   try {
     await prisma.emailDelivery.create({
@@ -73,7 +64,6 @@ export async function recordEmailDelivery({
         recipientEmail,
         subject,
         status: result.queued ? EmailDeliveryStatus.QUEUED : EmailDeliveryStatus.FAILED,
-        trackingKey: trackingKey ?? result.trackingKey ?? null,
         provider: result.provider,
         queued: result.queued,
         note: result.note ?? null,
@@ -88,7 +78,6 @@ export async function recordEmailDelivery({
       subject,
       provider: result.provider,
       queued: result.queued,
-      trackingKey: trackingKey ?? result.trackingKey ?? null,
       actorUserId: actorUserId ?? null,
       userId: userId ?? null,
       orderId: orderId ?? null,
@@ -100,7 +89,6 @@ export async function recordEmailDelivery({
 
 export async function updateEmailDeliveryStatus({
   status,
-  trackingKey,
   messageId,
   messageUuid,
   recipientEmail,
@@ -109,7 +97,7 @@ export async function updateEmailDeliveryStatus({
 }: UpdateEmailDeliveryStatusInput) {
   const normalizedMessageId = messageId != null ? String(messageId) : null;
   const effectiveOccurredAt = occurredAt ?? new Date();
-  const identifiers = [trackingKey, normalizedMessageId, messageUuid, recipientEmail].filter(Boolean);
+  const identifiers = [normalizedMessageId, messageUuid, recipientEmail].filter(Boolean);
 
   if (identifiers.length === 0) {
     logger.warn("email.delivery_log.event_missing_identifiers", {
@@ -123,7 +111,6 @@ export async function updateEmailDeliveryStatus({
     const delivery = await prisma.emailDelivery.findFirst({
       where: {
         OR: [
-          trackingKey ? { trackingKey } : undefined,
           normalizedMessageId ? { messageId: normalizedMessageId } : undefined,
           messageUuid ? { messageUuid } : undefined,
           recipientEmail ? { recipientEmail } : undefined
@@ -137,7 +124,6 @@ export async function updateEmailDeliveryStatus({
     if (!delivery) {
       logger.warn("email.delivery_log.event_unmatched", {
         status,
-        trackingKey: trackingKey ?? null,
         messageId: normalizedMessageId,
         messageUuid: messageUuid ?? null,
         recipientEmail: recipientEmail ?? null,
@@ -161,7 +147,6 @@ export async function updateEmailDeliveryStatus({
       data: {
         status: nextStatus,
         queued: nextStatus === EmailDeliveryStatus.QUEUED,
-        trackingKey: delivery.trackingKey ?? trackingKey ?? null,
         messageId: delivery.messageId ?? normalizedMessageId,
         messageUuid: delivery.messageUuid ?? messageUuid ?? null,
         lastEventAt: nextOccurredAt,
@@ -176,7 +161,6 @@ export async function updateEmailDeliveryStatus({
   } catch (error) {
     logger.error("email.delivery_log.event_persist_failed", {
       status,
-      trackingKey: trackingKey ?? null,
       messageId: normalizedMessageId,
       messageUuid: messageUuid ?? null,
       recipientEmail: recipientEmail ?? null,

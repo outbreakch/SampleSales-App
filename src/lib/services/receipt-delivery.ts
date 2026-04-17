@@ -2,7 +2,7 @@ import { AuditAction, EmailDeliveryType, TemplateType } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { logger } from "@/lib/observability/logger";
 import { buildReceiptTemplateValues, renderTemplate } from "@/lib/receipt-template";
-import { generateEmailTrackingKey, recordEmailDelivery } from "@/lib/services/email-delivery-log";
+import { recordEmailDelivery } from "@/lib/services/email-delivery-log";
 import { sendReceiptEmail } from "@/lib/services/mail";
 import { getTaxDisplayLabels } from "@/lib/tax-display";
 
@@ -110,7 +110,6 @@ export async function deliverOrderReceipt({
 
   const html = renderTemplate(template.htmlBody, templateValues);
   const text = renderTemplate(template.textBody, templateValues);
-  const trackingKey = generateEmailTrackingKey();
 
   logger.info("receipt.send.attempt", {
     orderId: order.id,
@@ -124,8 +123,7 @@ export async function deliverOrderReceipt({
     to: order.customerEmail,
     subject: template.subject,
     html,
-    text,
-    trackingKey
+    text
   });
 
   logger.info("receipt.send.result", {
@@ -145,7 +143,6 @@ export async function deliverOrderReceipt({
     recipientEmail: order.customerEmail,
     subject: template.subject,
     result,
-    trackingKey,
     actorUserId: actorUserId ?? order.cashierUserId,
     userId: order.cashierUserId,
     orderId: order.id,

@@ -260,7 +260,6 @@ model EmailDelivery {
   subject        String
   provider       String
   queued         Boolean
-  trackingKey    String?           @unique
   note           String?
   messageId      String?
   messageUuid    String?
