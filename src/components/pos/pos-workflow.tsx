@@ -4,6 +4,7 @@ import { ShoppingBag } from "lucide-react";
 import { startTransition, useDeferredValue, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { CountryFlag } from "@/components/ui/country-flag";
 import { Input } from "@/components/ui/input";
 import { CatalogGrid } from "@/components/pos/catalog-grid";
 import { CartSummary } from "@/components/pos/cart-summary";
@@ -18,12 +19,6 @@ type CheckoutResult = {
   orderNumber: string;
   total: number;
   currency: string;
-};
-
-const countryFlags: Record<CountryConfig["code"], string> = {
-  AU: "🇦🇺",
-  US: "🇺🇸",
-  CA: "🇨🇦"
 };
 
 export function PosWorkflow() {
@@ -205,9 +200,7 @@ export function PosWorkflow() {
         <section className="space-y-5 lg:min-h-0 lg:overflow-y-auto lg:pr-2">
           <Card className="bg-white/88">
             <div className="flex items-center gap-4 rounded-[26px] border border-black/10 bg-white px-5 py-4">
-              <div className="flex size-12 items-center justify-center rounded-full border border-black/10 bg-mist text-xl leading-none text-ink">
-                  {countryFlags[country.code]}
-              </div>
+              <CountryFlag countryCode={country.code} className="size-12" />
               <div className="min-w-0">
                 <p className="text-xs uppercase tracking-[0.18em] text-stone">{country.name}</p>
                 <p className="truncate text-sm font-semibold text-ink">{companyName}</p>

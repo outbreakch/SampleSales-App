@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { CountryFlag } from "@/components/ui/country-flag";
 import { Input } from "@/components/ui/input";
 import { getStaffCopy } from "@/lib/i18n";
 import { formatCurrency } from "@/lib/utils";
@@ -14,12 +15,6 @@ type CatalogCountry = {
   currencyCode: string;
   isAvailable: boolean;
   overridePrice: number | null;
-};
-
-const countryFlags: Record<CatalogCountry["countryCode"], string> = {
-  US: "🇺🇸",
-  CA: "🇨🇦",
-  AU: "🇦🇺"
 };
 
 type CatalogItemRow = {
@@ -277,7 +272,7 @@ export function CatalogManager({
                         type="button"
                       >
                         <div className="flex items-start gap-3">
-                          <span className="text-2xl leading-none">{countryFlags[country.countryCode]}</span>
+                          <CountryFlag countryCode={country.countryCode} className="size-10" />
                           <div>
                             <p className="font-medium">{country.countryCode}</p>
                             <p className="mt-1 text-sm text-white/55">
